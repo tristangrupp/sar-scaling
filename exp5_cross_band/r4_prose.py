@@ -22,7 +22,7 @@ def render(c, vs, dec, T, dec_tab, paper_tab):
     figs_c = "".join(f'<figure><img src="{img(p)}" alt="{p.stem}"><figcaption>{p.stem.replace("_", " ")} (no Stripmap truth)</figcaption></figure>' for p in ctxp)
     n_beats = int(dec.beats.sum())
     return f"""<section class="card"><h2>Round 4: does pretraining beat the published baseline at a matched recipe?
-<span class="pill neg">no, within seed noise</span> <span class="pill run">25 % ESRT pretrained rows pending</span></h2>
+<span class="pill neg">no, within seed noise</span></h2>
 <p><b>Decision:</b> at Experiment 2's arm A recipe and budget, neither X-band nor X-band + NISAR pretraining beats arm A
 beyond seed noise, in the near group (Owens), the far group (W Australia), Houston or the paper's test scenes, for
 either architecture. {n_beats} of {len(dec)} group-by-variant tests pass the rule. Over all pilot holdouts at 100 % of
@@ -62,10 +62,12 @@ below arm A in the far group (−0.23 SSIM per tile against <code>esrt_a</code>)
 <h4>W Australia (far)</h4>{T['w_australia (far)']}
 <h4>Houston</h4>{T['houston (X-band holdout)']}
 <h4>All pilot holdouts</h4>{T['all pilot holdouts']}
-<p style="color:var(--muted)">Pending: ESRT X-pretrained and X+L-pretrained at 25 % (2 seeds each). The GPU slot was
-reassigned to other projects before they ran, and they are held until it reopens. The CNN 25 % rows are final. They
-show the same picture: pretraining does not separate from scratch, and seed spread at 25 % is large (SD up to 1.1 SSIM in
-W Australia).</p>
+<p>At 25 % of the training tiles (two seeds per start), the picture is the same for both architectures. ESRT
+X-pretrained reaches {v('esrt','x',0.25,'ssim_lee'):.2f} SSIM over all pilot holdouts, X+L-pretrained
+{v('esrt','xl',0.25,'ssim_lee'):.2f}, against {v('esrt','scratch',0.25,'ssim_lee'):.2f} from scratch. The CNN gives
+{v('cnn','x',0.25,'ssim_lee'):.2f}, {v('cnn','xl',0.25,'ssim_lee'):.2f} and {v('cnn','scratch',0.25,'ssim_lee'):.2f}. Seed
+spread at this share is large: SD up to {v('esrt','scratch',0.25,'ssim_lee_sd','w_australia (far)'):.1f} SSIM in
+W Australia for ESRT from scratch. No 25 % variant separates from scratch, and each trails its own architecture's 100 % arm A model.</p>
 
 <h3>The paper's metric set on its three test scenes</h3>
 {T['paper test scenes']}
