@@ -1,0 +1,13 @@
+region,model,mae,ssim,detail_r
+houston,bicubic,0.833,0.153,0.03
+houston,gan,0.498,0.236,0.036
+houston,l1,0.5,0.239,0.038
+newark_ny,bicubic,0.769,0.049,0.027
+newark_ny,gan,0.612,0.052,0.029
+newark_ny,l1,0.614,0.052,0.032
+rotterdam,bicubic,0.704,0.079,0.078
+rotterdam,gan,0.505,0.084,0.103
+rotterdam,l1,0.508,0.082,0.107
+tokyo,bicubic,0.679,0.188,0.035
+tokyo,gan,0.469,0.266,0.05
+tokyo,l1,0.47,0.264,0.052

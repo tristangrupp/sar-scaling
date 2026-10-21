@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Related Work</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>
+:root { --bg:#f3f5f7; --panel:#fff; --fg:#18212b; --muted:#5b6875; --line:#d5dbe1; --land:#dde3e8;
+  --accent:#1f6fd1; --a2:#c2410c; --a3:#0f8a6a; --good:#1d7a3a; --warn:#a15c00; --bad:#b42318;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f151b; --panel:#161e26; --fg:#e3e9ef;
+  --muted:#93a1af; --line:#2a3541; --land:#26313c; --accent:#6aa8ff; --a2:#ff8a4c; --a3:#3fd0a5; --good:#5fd27d;
+  --warn:#f0a640; --bad:#ff6b5e; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#0f151b; --panel:#161e26; --fg:#e3e9ef; --muted:#93a1af; --line:#2a3541; --land:#26313c;
+  --accent:#6aa8ff; --a2:#ff8a4c; --a3:#3fd0a5; --good:#5fd27d; --warn:#f0a640; --bad:#ff6b5e; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 var(--f-body); }
+.sitenav { position:sticky; top:0; z-index:20; background:var(--panel); border-bottom:1px solid var(--line); }
+.sitenav .in { max-width:1200px; margin:0 auto; padding:8px 16px; display:flex; flex-wrap:wrap; gap:4px 18px; align-items:center; }
+.sitenav b { font:700 0.95rem var(--f-display); margin-right:8px; }
+.sitenav a { color:var(--muted); text-decoration:none; font-size:0.9rem; padding:4px 0; border-bottom:2px solid transparent; }
+.sitenav a:hover { color:var(--fg); } .sitenav a.on { color:var(--fg); border-bottom-color:var(--accent); }
+.wrap { max-width:1200px; margin:0 auto; padding:24px 16px 56px; display:grid; gap:22px; }
+h1 { font:700 1.7rem/1.2 var(--f-display); margin:0; text-wrap:balance; }
+h2 { font:600 0.78rem/1.2 var(--f-display); text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 10px; }
+h3 { font:700 1.05rem var(--f-display); margin:14px 0 6px; }
+p, li { max-width:78ch; } .lede { color:var(--muted); margin:6px 0 0; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px 16px; min-width:0; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.tw { overflow-x:auto; } table { border-collapse:collapse; width:100%; font-size:0.9rem; }
+th,td { padding:6px 10px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; }
+th { font:600 0.74rem var(--f-display); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+td.n, th.n { text-align:right; font-family:var(--f-mono); font-variant-numeric:tabular-nums; }
+code { font-family:var(--f-mono); font-size:0.85em; word-break:break-all; }
+.pill { display:inline-block; padding:1px 9px; border-radius:999px; font-size:0.78rem; border:1px solid currentColor; }
+.pill.done { color:var(--good); } .pill.run { color:var(--accent); } .pill.blocked { color:var(--warn); } .pill.neg { color:var(--bad); }
+.exp { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; align-items:start; }
+.exp .k { font:700 1rem var(--f-display); } .exp a { color:var(--accent); }
+figure { margin:0; } figure img { width:100%; height:auto; border-radius:4px; background:#fff; }
+figcaption { font-size:0.85rem; color:var(--muted); margin-top:4px; }
+svg text { fill:var(--muted); font:11px var(--f-body); }
+.md h1 { display:none; } .md h2 { font:700 1.1rem var(--f-display); text-transform:none; letter-spacing:0; color:var(--fg); margin:20px 0 6px; }
+.md ul { padding-left:20px; } .md li { margin-bottom:4px; }
+a { color:var(--accent); }
+</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="">Overview</a><a href="related.html" class="on">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: GAN spike</a><a href="ceiling.html" class="">Exp 1b: ceiling</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: other sensors</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a></div></nav><main class="wrap"><header><h1>Related work</h1><p class='lede'>What has been published on Sentinel-1 and Capella super-resolution, and the gap this project tests.</p></header><section class='card md'><h1>Related work and where this project fits</h1>
+<h2>Amieva, Ayala and Galar (2026): Sentinel-1 IW to Stripmap</h2>
+<p><em>A deep learning approach to jointly super-resolve and despeckle Sentinel-1 imagery.</em> Acta Astronautica 238 (2026) 1396–1407. DOI 10.1016/j.actaastro.2025.07.071. Open access: https://hdl.handle.net/2454/55549 (PDF and extracted text in this folder). Tracasa Instrumental and the Public University of Navarre. Earlier conference version presented at ESA's SPAICE workshop.</p>
+<p>What they did, from the paper:</p>
+<ul>
+<li>Task: Sentinel-1 IW 10 m to 5 m, jointly super-resolving and despeckling, with Stripmap from the same satellite as ground truth.</li>
+<li>Data: 10 IW–Stripmap pairs, Stripmap beams S3 to S6 (matching IW incidence), ascending, VV+VH, continental regions, 2015–2017, IW within 1 to 12 days. The paper lists all 10 Stripmap SLC IDs in Table 2. Total area 135,603 km².</li>
+<li>Processing: SNAP on SLC: calibration, terrain flattening, terrain correction with the Copernicus DEM; IW to 10 m, Stripmap to 5 m. <strong>The Stripmap reference was Lee-filtered</strong>, then converted to dB. Co-registration with Gefolki.</li>
+<li>Splits: whole images per set; test set of 3 images, evaluated as full scenes.</li>
+<li>Patches: 48 × 48 input, 96 × 96 reference. Min–max normalization per band using the 0.1 and 99.9 percentiles.</li>
+<li>Models: SAN (second-order attention) and ESRT (efficient super-resolution transformer); ESRT matched SAN at much lower cost. Non-generative by design, to avoid hallucination.</li>
+<li>Losses: L1, L2, SSIM; SSIM best. Histogram matching of reference to input, or a distribution preservation loss (consistency L2 weight 0.15 plus SSIM super-resolution loss) that removes the need for histogram matching.</li>
+<li>Training: 30 epochs, batch 128, OneCycleLR max 1e-3, one RTX A5500.</li>
+<li>Metrics: SSIM, PSNR against Stripmap; ENL, MoI, MoR, Cx on five homogeneous test regions.</li>
+<li>Best (SSIM loss with histogram matching): SSIM 70.14, PSNR 26.07 dB, ENL 201.51, MoI 1.022, MoR 1.027, Cx 0.073. MERLIN despeckling plus bicubic: SSIM 67.30, PSNR 20.92, ENL 329.50.</li>
+<li>Code: no repository is mentioned.</li>
+<li>Future work they name: ×4 and ×8 factors.</li>
+</ul>
+<h2>Ahn et al. (2025): Capella-only super-resolution</h2>
+<p><em>SAR Super-Resolution Using Capella Satellite Imagery.</em> ISPRS Archives XLVIII-G-2025, 87–92. DOI 10.5194/isprs-archives-XLVIII-G-2025-87-2025. SI Analytics, Daejeon. PDF and text in this folder.</p>
+<ul>
+<li>Capella 0.5 m GSD images as high-resolution references; low-resolution inputs made by bicubic downsampling of the same images (×2: 512 → 1024 px patches). 22,951 training and 5,760 test pairs, 80:20 split.</li>
+<li>Model: Restormer modified with a pixel-shuffle upsampling head; L1 loss; SSIM and PSNR.</li>
+<li>Sentinel-1 is not used. Capella is compared only against a degraded copy of itself.</li>
+</ul>
+<h2>The gap this project tests</h2>
+<p>Nobody, as far as we can find, has tested whether commercial X-band geometry improves a same-sensor Sentinel-1 IW to Stripmap model. Experiment 2 does that: reproduce the Amieva et al. setup as arm A, add Capella (and Umbra, ICEYE) edges as a tolerant, infrastructure-only loss as arm B, and score both on held-out Stripmap, near and far from X-band coverage.</p>
+<p>Differences to resolve before claiming a fair comparison:</p>
+<ul>
+<li>Their reference is Lee-filtered Stripmap; ours is not yet. Score against both.</li>
+<li>They use SNAP with terrain flattening; ours uses sarsen, with terrain flattening off for speed. Turn it on now that the scene is cropped to the tile.</li>
+<li>They train ESRT with SSIM loss; arm A should use ESRT (public code from Lu et al.) and the same loss, not only our residual CNN.</li>
+<li>Their 10 Stripmap scenes are listed; downloading them and their test images lets us report on the same scenes they did.</li>
+</ul></section></main></body></html>
