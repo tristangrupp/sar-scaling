@@ -1,0 +1,10 @@
+provider,model,mae,ssim,detail_r,hf_ratio
+capella,bicubic,0.889,0.033,0.026,0.266
+capella,gan,0.706,0.034,0.033,0.053
+capella,l1,0.707,0.034,0.037,0.046
+iceye,bicubic,0.803,0.139,0.062,0.266
+iceye,gan,0.563,0.172,0.058,0.07
+iceye,l1,0.566,0.172,0.066,0.06
+umbra,bicubic,0.726,0.058,0.027,0.278
+umbra,gan,0.556,0.054,0.027,0.075
+umbra,l1,0.559,0.056,0.031,0.063

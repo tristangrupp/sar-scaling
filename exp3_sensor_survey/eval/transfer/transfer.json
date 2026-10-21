@@ -1,0 +1,114 @@
+[
+ {
+  "kind": "neighbor",
+  "name": "82_106_20260619_1769_3245",
+  "role": "far",
+  "lon": -56.19087649995404,
+  "lat": -34.904939715843234,
+  "png": "nb_82_106_20260619_1769_3245.png"
+ },
+ {
+  "kind": "neighbor",
+  "name": "45_108_20260617_0992_3264",
+  "role": "far",
+  "lon": 146.98168341321394,
+  "lat": -38.37154341751518,
+  "png": "nb_45_108_20260617_0992_3264.png"
+ },
+ {
+  "kind": "neighbor",
+  "name": "143_164_20260916_0800_0768",
+  "role": "far",
+  "lon": 28.178022170279,
+  "lat": -26.218353564043284,
+  "png": "nb_143_164_20260916_0800_0768.png"
+ },
+ {
+  "kind": "neighbor",
+  "name": "39_14_20260628_3616_2336",
+  "role": "near",
+  "lon": 119.60236211868192,
+  "lat": 23.66103876069467,
+  "png": "nb_39_14_20260628_3616_2336.png"
+ },
+ {
+  "kind": "neighbor",
+  "name": "6_76_20260930_2976_0832",
+  "role": "near",
+  "lon": 52.85294734215868,
+  "lat": 24.11461018841049,
+  "png": "nb_6_76_20260930_2976_0832.png"
+ },
+ {
+  "kind": "context",
+  "name": "netherlands_polders_villages",
+  "lon": 4.95,
+  "lat": 52.45,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_032_167_D_062_2005_DHDH_A_20261011T185739_20261011T185814_P05023_N_F_J_001",
+  "png": "ctx_netherlands_polders_villages.png"
+ },
+ {
+  "kind": "context",
+  "name": "paris_basin_farmland",
+  "lon": 2.2,
+  "lat": 48.3,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_032_173_A_026_2005_DHDH_A_20261012T043616_20261012T043651_P05023_N_F_J_001",
+  "png": "ctx_paris_basin_farmland.png"
+ },
+ {
+  "kind": "context",
+  "name": "austrian_alps",
+  "lon": 11.4,
+  "lat": 47.15,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_026_109_D_065_2005_QPDH_A_20260727T182605_20260727T182640_P05023_N_F_J_001",
+  "png": "ctx_austrian_alps.png"
+ },
+ {
+  "kind": "context",
+  "name": "chicago_suburbs",
+  "lon": -88.05,
+  "lat": 41.85,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_033_047_A_023_2005_QPDH_A_20261015T104908_20261015T104943_P05023_N_F_J_001",
+  "png": "ctx_chicago_suburbs.png"
+ },
+ {
+  "kind": "context",
+  "name": "po_valley_farmland",
+  "lon": 10.9,
+  "lat": 45.1,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_026_109_D_066_2005_QPDH_A_20260727T182639_20260727T182645_P05023_N_P_J_001",
+  "png": "ctx_po_valley_farmland.png"
+ },
+ {
+  "kind": "context",
+  "name": "amazon_forest_edge",
+  "lon": -62.9,
+  "lat": -10.1,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_032_161_A_172_2005_DHDH_A_20261011T100044_20261011T100118_P05023_N_F_J_001",
+  "png": "ctx_amazon_forest_edge.png"
+ },
+ {
+  "kind": "context",
+  "name": "tabernas_desert_spain",
+  "lon": -2.4,
+  "lat": 37.05,
+  "native": false,
+  "granule": "NISAR_L2_PR_GCOV_032_167_D_070_2005_DHDH_M_20261011T190211_20261011T190246_P05023_N_F_J_001",
+  "png": "ctx_tabernas_desert_spain.png"
+ },
+ {
+  "kind": "context",
+  "name": "nile_delta_villages",
+  "lon": 31.0,
+  "lat": 30.8,
+  "native": true,
+  "granule": "NISAR_L2_PR_GCOV_032_028_A_017_2005_DHDH_A_20261002T030757_20261002T030832_P05023_N_F_J_001",
+  "png": "ctx_nile_delta_villages.png"
+ }
+]

@@ -1,0 +1,15 @@
+<h3>What it means</h3>
+<p>Two real X-band images of the same place agree on fine detail only when the viewing geometry nearly repeats and the
+images line up to within a meter or two. Then detail_r reaches 0.45–0.63. Typical pairs score 0.1–0.25, and pairs with
+different geometry score below 0.1.</p>
+<p>Registration dominates the metric. The same image shifted by one 2.5 m pixel drops to 0.37; shifted by 5 m, to 0.11.
+Raw offsets between collects were large: median 40 m, and 64% of pairs off by more than 20 m. A single phase correlation
+capped at 8 pixels fixed almost nothing; a coarse 10 m step followed by a 2.5 m refinement was needed.</p>
+<p>Real X-band blurred to 10 m scores about as well (0.12–0.18) as full-resolution X-band, except in near-repeat pairs.
+Most of the detail agreement between collects is sub-10 m edges, not true 2.5 m texture.</p>
+<p><b>For the spike:</b> its truth tiles were aligned to Sentinel-1 only at 10 m and their geometry is unrelated to
+Sentinel-1's, so a realistic ceiling for that setup was about 0.1–0.2, not 0.6–0.7. The models' 0.05 still sits below
+that, below blurred real X-band, and no better than bicubic, and their fine-detail energy (0.06) is far below every real
+reference (0.89 for real pairs, 0.37 for the 10 m blur). The models did fail, but the metric could never have shown
+success much above 0.2. A fair test needs near-repeat-geometry truth, sub-pixel registration, or a shift-tolerant metric,
+which experiment 2's edge-distance loss and metrics provide.</p>

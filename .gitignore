@@ -1,0 +1,37 @@
+# Data, checkpoints and binaries stay local (data\ folders hold ~250 GB of SAR scenes and tiles)
+data/
+ckpt/
+*.pt
+*.npz
+*.h5
+*.tif
+*.parquet
+*.dll
+*.pyd
+exp3_sensor_survey/_pylib/
+**/cdse_cache/
+
+# Run state
+*.log
+*.out
+*.lock
+*.done
+logs/
+logs_r*/
+__pycache__/
+*.pyc
+gpu_secondary.lock
+run_gpu_slot.*
+RESUME_GPU.md
+
+# Not for a public repo: contact notes and copyrighted paper full texts
+CONTACTS.md
+related_work/*.pdf
+related_work/*.txt
+
+# Generated page bodies; the built copies live in site/
+exp1_gan_spike/gan_spike_report.html
+exp2_iw_to_stripmap/results_body.html
+exp3_sensor_survey/page_body.html
+exp4_despeckling/page_body.html
+exp5_cross_band/page_body.html

@@ -1,0 +1,20 @@
+{
+ "Design written": "done",
+ "Stripmap inventory and region ranking": "done",
+ "Pilot scenes fetched (48 + 13 replacements for missing S1C/S1D commissioning SLCs) + the paper's 10": "done",
+ "SLC → 5 m terrain-flattened gamma0 (sarsen; south-up flip and geoid fixed)": "done",
+ "408 tiles paired with IW, co-registered per scene (396 used), Lee references": "done",
+ "Arm A: ESRT (paper recipe, + consistency) and residual CNN": "done",
+ "Stage 1: X-band geometry check (Capella HH/VV, Umbra, ICEYE)": "done",
+ "Arm B: + X-band edge loss, tuned on validation, with a control": "done",
+ "Score all arms on held-out Stripmap, near vs far, vs paper": "done",
+ "Transfer panels: neighbors of held-out tiles and unseen landscapes": "done",
+ "Round 2: 25 inland scenes (13 regions, 4 continents), 158 tiles built and registered": "done",
+ "Round 2: new holdouts yemen_west (near) and bangladesh (far)": "done",
+ "Change mask from bracketing same-track IW passes (554 tiles)": "done",
+ "splits_v2.csv / tiles_v2.csv / pairs_final_v2.csv": "done",
+ "Round 3: ESRT on v2 with and without change mask, queued for the shared GPU (needs 2 GB free)": "wait",
+ "Round 3: ESRT on v2, with and without change mask (+ second seed)": "done",
+ "Round 3: scored on old and new holdouts, per land-cover class": "done",
+ "Round 3: transfer panels for yemen_west and bangladesh": "done"
+}

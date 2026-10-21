@@ -1,0 +1,16 @@
+sm_scratch_f0.05_s0 scratch 0.05 0 3000
+sm_x2_unc_f0.05_s0 x2_unc 0.05 0 3000
+sm_scratch_f0.1_s0 scratch 0.1 0 3000
+sm_x2_unc_f0.1_s0 x2_unc 0.1 0 3000
+sm_scratch_f0.25_s0 scratch 0.25 0 3000
+sm_x2_unc_f0.25_s0 x2_unc 0.25 0 3000
+sm_scratch_f0.5_s0 scratch 0.5 0 3000
+sm_x2_unc_f0.5_s0 x2_unc 0.5 0 3000
+sm_scratch_f1.0_s0 scratch 1.0 0 3000
+sm_x2_unc_f1.0_s0 x2_unc 1.0 0 3000
+sm_scratch_f0.05_s1 scratch 0.05 1 3000
+sm_x2_unc_f0.05_s1 x2_unc 0.05 1 3000
+sm_scratch_f0.1_s1 scratch 0.1 1 3000
+sm_x2_unc_f0.1_s1 x2_unc 0.1 1 3000
+sm_scratch_f0.25_s1 scratch 0.25 1 3000
+sm_x2_unc_f0.25_s1 x2_unc 0.25 1 3000
