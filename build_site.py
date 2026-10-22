@@ -124,7 +124,9 @@ def status():
 # ------------------------------------------------------------------ index
 def frag_pill(slug):
     f = ROOT / slug / "status.txt"
-    state = f.read_text().strip() if f.exists() else "running"
+    # status.txt holds one word; only its first line counts, so a pasted log can never flood the index
+    lines = f.read_text().strip().splitlines() if f.exists() else []
+    state = lines[0].strip() if lines and len(lines[0]) <= 30 else "running"
     cls = {"done": "done", "negative": "neg", "blocked": "blocked"}.get(state, "run")
     return f'<span class="pill {cls}">{state}</span>'
 
@@ -163,7 +165,8 @@ project's data with <code>build_site.py</code>.</p></header>
    <p>{exp2_line}</p></div>
  <span class="k">3</span><div><a href="exp3.html">Is there a better open sensor than Sentinel-1?</a> {frag_pill("exp3_sensor_survey")}
    <p>NISAR L-band is the best open training source: same-instant pairs at two bandwidths. A tuned model beats
-   bicubic on all five far-holdout metrics; an X-band edge loss again adds nothing.</p></div>
+   bicubic on all five far-holdout metrics; an X-band edge loss again adds nothing, and an adversarial (GAN) term adds
+   texture, not real structure.</p></div>
  <span class="k">4</span><div><a href="exp4.html">Despeckling: cleaner, more interpretable Sentinel-1</a> {frag_pill("exp4_despeckling")}
    <p>A VV+VH Noise2Noise CNN trained on 24 sites, with no clean target, is the best single-date despeckler
    (about 0.7 dB above Lee) and lifts land-cover accuracy from 0.770 to 0.806. It still trails Lee in textured
@@ -192,13 +195,13 @@ models beat classic filters and help a downstream map.</p></section>
  <p>Experiment 2 keeps the band fixed: Sentinel-1 IW to Sentinel-1 Stripmap, about 4x in true resolution. X-band
  only checks where edges sit, never how bright things are.</p></div>
  <div class="card"><h2>Files</h2><ul>
- <li>Project folder: <code>E:\\SAR_superresolution</code> (see <code>README.md</code>)</li>
+ <li>Code, tables and this site: <a href="https://github.com/tristangrupp/sar-scaling">github.com/tristangrupp/sar-scaling</a></li>
  <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
    <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
    <code>exp5_cross_band</code></li>
- <li>Large data sits in each experiment's <code>data\\</code> subfolder (Stripmap SLC: <code>exp2_iw_to_stripmap\\data</code>)</li>
- <li>Papers and contacts: <code>related_work\\</code>, <code>CONTACTS.md</code></li>
- <li>Rebuild this site: <code>python build_site.py</code> (ftwtools env)</li></ul></div>
+ <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
+   download the data again</li>
+ <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>
 </section>"""
     (SITE / "index.html").write_text(page("index.html", "SAR Super-resolution Log", body), encoding="utf-8")
 
@@ -383,12 +386,11 @@ def build_fragment_page(slug, folder, title, placeholder):
 
 def build_related():
     notes = markdown.markdown((ROOT / "related_work" / "NOTES.md").read_text(encoding="utf-8"))
-    contacts = markdown.markdown((ROOT / "CONTACTS.md").read_text(encoding="utf-8"))
-    body = ("<header><h1>Related work and contacts</h1><p class='lede'>What has been published on Sentinel-1 and "
-            "Capella super-resolution, the gap this project tests, and people at Capella to talk to. Papers and "
-            "extracted text are in the <code>related_work</code> folder; contacts in <code>CONTACTS.md</code>.</p></header>"
-            f"<section class='card md'>{notes}</section><section class='card md'>{contacts}</section>")
-    (SITE / "related.html").write_text(page("related.html", "Related Work and Contacts", body), encoding="utf-8")
+    # the site is public (GitHub Pages), so contact notes stay out of it
+    body = ("<header><h1>Related work</h1><p class='lede'>What has been published on Sentinel-1 and "
+            "Capella super-resolution, and the gap this project tests.</p></header>"
+            f"<section class='card md'>{notes}</section>")
+    (SITE / "related.html").write_text(page("related.html", "Related Work", body), encoding="utf-8")
 
 
 def main():

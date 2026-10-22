@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Related Work and Contacts</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Related Work</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>
 :root { --bg:#f3f5f7; --panel:#fff; --fg:#18212b; --muted:#5b6875; --line:#d5dbe1; --land:#dde3e8;
   --accent:#1f6fd1; --a2:#c2410c; --a3:#0f8a6a; --good:#1d7a3a; --warn:#a15c00; --bad:#b42318;
   --f-display:"Archivo","Helvetica Neue",Arial,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
@@ -37,7 +37,7 @@ svg text { fill:var(--muted); font:11px var(--f-body); }
 .md h1 { display:none; } .md h2 { font:700 1.1rem var(--f-display); text-transform:none; letter-spacing:0; color:var(--fg); margin:20px 0 6px; }
 .md ul { padding-left:20px; } .md li { margin-bottom:4px; }
 a { color:var(--accent); }
-</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="">Overview</a><a href="related.html" class="on">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: GAN spike</a><a href="ceiling.html" class="">Exp 1b: ceiling</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: other sensors</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a></div></nav><main class="wrap"><header><h1>Related work and contacts</h1><p class='lede'>What has been published on Sentinel-1 and Capella super-resolution, the gap this project tests, and people at Capella to talk to. Papers and extracted text are in the <code>related_work</code> folder; contacts in <code>CONTACTS.md</code>.</p></header><section class='card md'><h1>Related work and where this project fits</h1>
+</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="">Overview</a><a href="related.html" class="on">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: GAN spike</a><a href="ceiling.html" class="">Exp 1b: ceiling</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: other sensors</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a></div></nav><main class="wrap"><header><h1>Related work</h1><p class='lede'>What has been published on Sentinel-1 and Capella super-resolution, and the gap this project tests.</p></header><section class='card md'><h1>Related work and where this project fits</h1>
 <h2>Amieva, Ayala and Galar (2026): Sentinel-1 IW to Stripmap</h2>
 <p><em>A deep learning approach to jointly super-resolve and despeckle Sentinel-1 imagery.</em> Acta Astronautica 238 (2026) 1396–1407. DOI 10.1016/j.actaastro.2025.07.071. Open access: https://hdl.handle.net/2454/55549 (PDF and extracted text in this folder). Tracasa Instrumental and the Public University of Navarre. Earlier conference version presented at ESA's SPAICE workshop.</p>
 <p>What they did, from the paper:</p>
@@ -70,29 +70,4 @@ a { color:var(--accent); }
 <li>They use SNAP with terrain flattening; ours uses sarsen, with terrain flattening off for speed. Turn it on now that the scene is cropped to the tile.</li>
 <li>They train ESRT with SSIM loss; arm A should use ESRT (public code from Lu et al.) and the same loss, not only our residual CNN.</li>
 <li>Their 10 Stripmap scenes are listed; downloading them and their test images lets us report on the same scenes they did.</li>
-</ul></section><section class='card md'><h1>Points of contact: Capella Space</h1>
-<p>People at Capella Space whose work touches this project. Listed as provided on 2026-10-17, with links to their public profiles. Nothing here goes beyond what those links say.</p>
-<h2>Primary</h2>
-<p><strong>Shaunak De</strong>, Principal Systems Engineer, Capella Space</p>
-<ul>
-<li>LinkedIn: https://www.linkedin.com/in/shaunakde/</li>
-<li>Why: of the Capella researchers, his public record shows the most machine learning work on SAR. His Google Scholar listing covers SAR, PolSAR and machine learning.</li>
-<li>Co-author of <em>A Deep Learning Approach to Field Boundary Segmentation Using Very High-Resolution X-Band SAR Data</em> (2025): https://ieeexplore.ieee.org/document/11314044</li>
-<li>Co-author of IonQ's quantum SAR change-detection paper, arXiv 2609.05313 (September 2026): https://arxiv.org/pdf/2609.05313</li>
-</ul>
-<h2>Others</h2>
-<p><strong>Scott Staniewicz</strong>, Staff Radar Engineer, InSAR</p>
-<ul>
-<li>LinkedIn: https://www.linkedin.com/in/scott-staniewicz-08579848/</li>
-</ul>
-<p><strong>Craig Stringham</strong>, SAR Algorithms lead</p>
-<ul>
-<li>LinkedIn: https://www.linkedin.com/in/craig-stringham-3300a647/</li>
-</ul>
-<p><strong>Gordon Farquharson</strong>, VP of Mission Design</p>
-<ul>
-<li>University of Washington page: https://www.ece.uw.edu/people/gordon-farquharson/</li>
-<li>LinkedIn: https://www.linkedin.com/in/gordon-farquharson-114bb03/</li>
-</ul>
-<h2>What to bring them</h2>
-<p>Experiment 2's question: does Capella geometry, used as an edge-only training signal, beat the published Sentinel-1 IW to Stripmap baseline (Amieva, Ayala and Galar, <em>Acta Astronautica</em> 2026) on held-out Stripmap? See <code>related_work/NOTES.md</code> and the site's Related work page.</p></section></main></body></html>
+</ul></section></main></body></html>
