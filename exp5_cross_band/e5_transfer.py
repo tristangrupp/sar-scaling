@@ -29,6 +29,14 @@ from rasterio.enums import Resampling
 from rasterio.transform import from_origin
 from rasterio.vrt import WarpedVRT
 
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
+# --panels-only: redraw the panels without rewriting transfer_stats.csv
+PANELS_ONLY = "--panels-only" in sys.argv
+MODEL_COLS = {"exp1_cnn", "x4_cond", "x4_cond+adapt", "x4_aug", "c4"}   # learned models: green; no truth exists here
+
 SPAN, N10 = 9600, 960
 CONTEXTS = {
     "matogrosso_farmland": (-55.90, -13.00, "2025-07-15"),
@@ -84,7 +92,7 @@ def run_all(models, exp1, s1db, orbit):
 
 def panel(imgs, title, path, box=None, zoom=None):
     lo, hi = np.percentile(imgs["s1"], [2, 98])
-    fig, ax = plt.subplots(2, len(COLS), figsize=(3.2 * len(COLS), 7.0), dpi=80, squeeze=False)
+    fig, ax = plt.subplots(2, len(COLS), figsize=(3.2 * len(COLS), 7.8), dpi=80, squeeze=False)
     r, c, n = zoom
     for j, (k, name) in enumerate(COLS):
         a, b = ax[0, j], ax[1, j]
@@ -99,8 +107,13 @@ def panel(imgs, title, path, box=None, zoom=None):
         a.add_patch(Rectangle((c, r), n, n, fill=False, ec="#6aa8ff", lw=1.2))
         b.imshow(imgs[k][r:r + n, c:c + n], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
         b.set_title(name + " (zoom)", fontsize=8)
+        if k in MODEL_COLS:
+            outline(a, "model", lw=3)
+            outline(b, "model", lw=3)
+    legend(fig)
     fig.suptitle(title, fontsize=10)
-    fig.tight_layout()
+    # explicit spacing: tight_layout left the zoom-row titles over the top-row images
+    fig.subplots_adjust(left=0.004, right=0.996, top=0.915, bottom=0.045, wspace=0.03, hspace=0.16)
     fig.savefig(path)
     plt.close(fig)
 
@@ -169,7 +182,8 @@ def main():
             print("context", name, flush=True)
         except Exception as e:
             print("fail", name, e, flush=True)
-    pd.DataFrame(rows).to_csv(ROOT / "transfer_stats.csv", index=False)
+    if not PANELS_ONLY:
+        pd.DataFrame(rows).to_csv(ROOT / "transfer_stats.csv", index=False)
 
 
 if __name__ == "__main__":

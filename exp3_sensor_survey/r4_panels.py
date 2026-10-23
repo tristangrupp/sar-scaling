@@ -11,7 +11,7 @@ import numpy as np
 from config import DATA
 from evaluate import bicubic, predict
 from train import to_n
-from r2_panels import G, crop_best, fill, row
+from r2_panels import G, crop_best, fill, mark, row
 from r3_panels import pick
 
 ROOT = Path(__file__).resolve().parent
@@ -46,7 +46,7 @@ def xband(ctrl, gan, k=4):
             lo, hi = np.nanpercentile(v, [2, 98])
             a_.imshow(v, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
             yy, xx = np.nonzero(ex); a_.scatter(xx, yy, s=0.3, c="#e8a33d", linewidths=0)
-            a_.set_title(kk, fontsize=8); a_.axis("off")
+            a_.set_title(kk, fontsize=8); a_.axis("off"); mark(a_, kk)
         fig.suptitle(f"X-band test site {Path(f).stem} (2.56 km; orange = X-band edges on infrastructure)", fontsize=9)
         fig.tight_layout(); fig.savefig(OUT / f"xband_{Path(f).stem}.png"); plt.close(fig)
 

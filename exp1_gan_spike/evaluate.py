@@ -27,6 +27,10 @@ from skimage.metrics import structural_similarity
 from train import DEV, Gen, load_tiles
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
+ROLES = {"l1": "model", "gan": "model", "truth": "truth"}   # green = model output, purple = truth
 
 
 def detail(a):
@@ -114,13 +118,16 @@ def main():
                 "truth": x[r:r + 256, c:c + 256]}
         imgs.update({k: v[r:r + 256, c:c + 256] for k, v in preds[t["id"]].items()})
         lo, hi = np.nanpercentile(imgs["truth"], [2, 98])
-        fig, ax = plt.subplots(1, len(order), figsize=(3 * len(order), 3.2), dpi=110)
+        fig, ax = plt.subplots(1, len(order), figsize=(3 * len(order), 3.6), dpi=110)
         for a_, k in zip(ax, order):
             if k in imgs:
                 a_.imshow(imgs[k], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
             a_.set_title(titles[k], fontsize=9)
             a_.axis("off")
-        fig.tight_layout()
+            if k in ROLES:
+                outline(a_, ROLES[k])
+        fig.tight_layout(rect=(0, 0.06, 1, 1))
+        legend(fig)
         fig.savefig(out / "panels" / f"{t['id']}.png")
         plt.close(fig)
         panel_meta.append({"id": t["id"], "region": t["region"], "split": t["split"]})

@@ -24,6 +24,8 @@ sys.path.insert(0, str(ROOT))
 from nisar_io import open_remote, search      # noqa: E402
 from evaluate import bicubic, predict         # noqa: E402
 from train import DEV, Gen, to_n              # noqa: E402
+sys.path.insert(0, str(ROOT.parent))          # project root, for panel_roles
+from panel_roles import outline               # noqa: E402
 
 SPAN, NI = 9600, 480
 CONTEXTS = {   # name: (lon, lat)
@@ -68,11 +70,15 @@ def figure(imgs, box_px, zoom, title, f):
             ax[0, j].add_patch(Rectangle((c, r), n, n, fill=False, ec="#e8a33d", lw=1.2))
         ax[0, j].add_patch(Rectangle((zc, zr), zn, zn, fill=False, ec="#4fb3d9", lw=1.2))
         ax[1, j].imshow(imgs[k][zr:zr + zn, zc:zc + zn], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
-        ax[1, j].set_title("zoom (blue box)", fontsize=8)
+        ax[1, j].set_title("zoom (blue box)", fontsize=8, pad=8)
         for a_ in ax[:, j]:
             a_.axis("off")
+            if k.startswith("CNN"):
+                outline(a_, "model")
+            elif k.startswith("Truth"):
+                outline(a_, "truth")
     fig.suptitle(title, fontsize=10)
-    fig.tight_layout(); fig.savefig(f); plt.close(fig)
+    fig.tight_layout(h_pad=2.0); fig.savefig(f); plt.close(fig)   # h_pad keeps zoom titles clear of the outlines
 
 
 def zoom_outside(imgs, off, n, z=160):
@@ -109,16 +115,20 @@ def run_window(G, prod_m, epsg, x0, y1, prod_a=None):
 
 
 G0 = None
+PINNED = {}
 
 
 def main():
     global G0
     G = Gen(2).to(DEV).eval()
-    G.load_state_dict(torch.load(ROOT / "ckpt/x2.pt"))
+    G.load_state_dict(torch.load(ROOT / "ckpt/x2.pt", map_location=DEV))
     if (ROOT / "ckpt/x2_cons0.pt").exists():
         G0 = Gen(2).to(DEV).eval()
-        G0.load_state_dict(torch.load(ROOT / "ckpt/x2_cons0.pt"))
+        G0.load_state_dict(torch.load(ROOT / "ckpt/x2_cons0.pt", map_location=DEV))
     out = ROOT / "eval/transfer"; out.mkdir(parents=True, exist_ok=True)
+    global PINNED
+    if (out / "transfer.json").exists():
+        PINNED = {m["name"]: m["granule"] for m in json.loads((out / "transfer.json").read_text()) if m.get("granule")}
     tiles = pd.read_csv(ROOT / "tiles.csv")
     meta = []
     # neighbors: two held-out tiles per holdout pair-region, first date only
@@ -148,6 +158,7 @@ def main():
             if not nat:
                 print("no 20 MHz product at", name, flush=True); meta.append({"kind": "context", "name": name, "status": "no 20 MHz"}); continue
             g = sorted(nat, key=lambda q: q["start"])[-1]
+            g = next((q for q in gs if q["id"] == PINNED.get(name)), g)   # redraws keep the granule shown on the page
             P = open_remote(g["url"])
             epsg = int(P["science/LSAR/GCOV/grids/frequencyA/projection"][()])
             x, y = Transformer.from_crs(4326, epsg, always_xy=True).transform(lon, lat)

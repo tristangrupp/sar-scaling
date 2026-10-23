@@ -35,6 +35,10 @@ from rasterio.transform import from_origin
 from rasterio.vrt import WarpedVRT
 from scipy import ndimage
 
+import sys  # noqa: E402
+sys.path.insert(0, str(PROJ))
+from panel_roles import legend, outline  # noqa: E402
+
 SM = PROJ / "exp2_iw_to_stripmap/sm_tiles"
 MARGIN = 16      # 10 m pixels of context
 MODELS = ["x4_cond", "x4_unc", "x4_aug", "x2_cond", "x2_unc", "c4", "c2"]
@@ -155,12 +159,17 @@ def main():
                 ims = [("IW input (10 m)", np.kron(s_in[MARGIN:-MARGIN, MARGIN:-MARGIN], np.ones((2, 2))))]
                 ims += [(k, P[k]) for k in order if k in P] + [("Stripmap (5 m)", truth)]
                 fig, ax = plt.subplots(1, len(ims), figsize=(2.6 * len(ims), 3.0), dpi=80)
-                for a_, (nm, im) in zip(ax, ims):
+                for i_, (a_, (nm, im)) in enumerate(zip(ax, ims)):
                     a_.imshow(im, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
                     a_.set_title(nm, fontsize=8)
                     a_.axis("off")
+                    if nm not in ("bicubic",) and 0 < i_ < len(ims) - 1:
+                        outline(a_, "model", lw=3)        # learned models
+                    elif i_ == len(ims) - 1:
+                        outline(a_, "truth", lw=3)        # Stripmap reference
+                legend(fig)
                 fig.suptitle(f"{f.stem} ({vname} position, offset {oy * 10} m N-S, {ox * 10} m E-W; r10 = {c1:.2f})", fontsize=9)
-                fig.tight_layout()
+                fig.tight_layout(rect=(0, 0.06, 1, 1))
                 fig.savefig(out / f"{f.stem}_{vname}.png")
                 plt.close(fig)
                 print(f.name, region, vname, (oy, ox), "ncc", ncc0, ncc1, "shifts", sh10, sh5, "corr10", c0, c1, flush=True)

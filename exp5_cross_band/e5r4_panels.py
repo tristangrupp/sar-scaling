@@ -1,5 +1,6 @@
 """Round 4 transfer panels on Experiment 2's own neighborhoods (panels.py neighbors + contexts), arm A
 against the best pretrained exp 5 model. Uses exp 2's functions unchanged; writes to panels_r4/ here.
+Role outlines (green = every learned model, purple = the Stripmap truth) come from exp 2's panels.py via panel_roles.
 
   python e5r4_panels.py esrt_a=<exp2> r4_esrt_x_f1_s0=ckpt/r4/r4_esrt_x_f1_s0.pt
 """

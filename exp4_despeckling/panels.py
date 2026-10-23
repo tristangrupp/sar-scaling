@@ -14,8 +14,14 @@ from matplotlib.patches import Rectangle
 from PIL import Image
 from scipy import ndimage as ndi
 
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
 FIG = ROOT / "figs"
 FIG.mkdir(exist_ok=True)
+MODELS = {"exp1_l1", "exp1_gan", "cnn_sup", "cnn_n2n", "cnn_gan"}   # learned despecklers: green outline
+TRUTH = {"ref_loo"}                                                   # scoring reference: purple outline
 ORDER = [("raw", "Raw single date"), ("lee", "Lee 7x7"), ("refined_lee", "Refined Lee"), ("gamma_map", "Gamma-MAP"),
          ("exp1_l1", "Exp 1 CNN, Capella (to 10 m)"), ("exp1_gan", "Exp 1 CNN+GAN, Capella"), ("cnn_sup", "New CNN (supervised)"),
          ("cnn_n2n", "New CNN (Noise2Noise)"), ("cnn_gan", "New CNN + GAN"), ("ref_loo", "Temporal mean (reference)")]
@@ -51,7 +57,7 @@ def main():
         r0, c0 = pick(ref, st, n)
         zr, zc = pick(ref[r0:r0 + n, c0:c0 + n], st[r0:r0 + n, c0:c0 + n], zn)
         k = len(cols)
-        fig, ax = plt.subplots(2, k, figsize=(1.9 * k, 4.15), dpi=110)
+        fig, ax = plt.subplots(2, k, figsize=(1.9 * k, 4.35), dpi=110)
         for j, (key, lab) in enumerate(cols):
             a = db(z[key])[r0:r0 + n, c0:c0 + n]
             ax[0, j].imshow(a, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
@@ -60,13 +66,16 @@ def main():
             ax[1, j].imshow(a[zr:zr + zn, zc:zc + zn], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
             for a_ in ax[:, j]:
                 a_.set_xticks([]); a_.set_yticks([])
+                if key in MODELS or key in TRUTH:
+                    outline(a_, "model" if key in MODELS else "truth", lw=2.5)
         ax[1, 0].set_ylabel("zoom 640 m", fontsize=7.5)
         ax[0, 0].set_ylabel("2.56 km", fontsize=7.5)
-        fig.subplots_adjust(left=0.02, right=0.995, top=0.93, bottom=0.01, wspace=0.04, hspace=0.06)
+        fig.subplots_adjust(left=0.02, right=0.995, top=0.93, bottom=0.06, wspace=0.04, hspace=0.06)
+        legend(fig)
         p = FIG / f"panel_{name}.png"
         fig.savefig(p)
         plt.close(fig)
-        im = Image.open(p).convert("RGB").quantize(64)
+        im = Image.open(p).convert("RGB").quantize(96)
         im.save(p, optimize=True)
         print(name, files[1].name, p.stat().st_size // 1024, "KB", flush=True)
 
