@@ -72,17 +72,17 @@ dl {{ display:grid; grid-template-columns:auto auto; gap:2px 16px; margin:0; jus
 svg text {{ fill:var(--muted); font-size:11px; font-family:var(--f); }}
 ul {{ margin:0; padding-left:20px; max-width:80ch; }} li {{ margin-bottom:5px; }}
 </style></head><body><div class="wrap">
-<header><h1>Can a model sharpen Sentinel-1 into X-band?</h1>
-<p class="muted">Throwaway feasibility test, {pd.Timestamp.now():%Y-%m-%d}. Input: Sentinel-1 IW VV, terrain-corrected, 10 m pixels (about 20 m true resolution).
+<header><h1>Experiment 1: predicting X-band from Sentinel-1</h1>
+<p class="muted">Feasibility test, October 22, 2026. Input: Sentinel-1 IW VV, terrain-corrected, 10 m pixels (about 20 m true resolution).
 Target: Umbra and ICEYE VV spotlight, averaged to 2.5 m. Test sites (Houston, Newark/NY, Tokyo, Antwerp, Rotterdam) were never seen in training.</p></header>
 
-<section class="card"><h2>Verdict</h2><div id="verdict">VERDICT_PLACEHOLDER</div></section>
+<section class="card"><h2>Conclusion</h2><div id="verdict">VERDICT_PLACEHOLDER</div></section>
 
 <section class="grid">
  <div class="card"><h2>Scores on held-out tiles (median)</h2>
  {table(summary, ["model", "mae", "ssim", "detail_r", "hf_ratio"])}
  <p class="muted" style="margin-top:8px">mae: error in per-tile standardized dB (lower is better). ssim: structural similarity (higher is better).
- detail_r: does the added fine detail land where the real detail is (0 = random, 1 = perfect). hf_ratio: fine-detail energy versus the real X-band (1 = as sharp as truth).</p></div>
+ detail_r: fine-detail correlation with the reference (0 = uncorrelated, 1 = exact agreement). hf_ratio: fine-detail energy relative to X-band (1 = equal energy; this does not establish equal accuracy).</p></div>
  <div class="card"><h2>Data</h2><dl>
   <dt>Collects selected</dt><dd>{data['counts']['selected']}</dd>
   <dt>Tiles built</dt><dd>{data['counts']['ok']}</dd>
@@ -101,16 +101,15 @@ SM_PLACEHOLDER
 EXTRA_PLACEHOLDER
 
 <section class="card"><h2>How to read the panels</h2>
-<p>Each row is one 640 m × 640 m crop from a held-out test tile, a place the models never saw in training. All five frames
-share one gray scale, set from the real X-band's 2nd–98th percentile, so brightness compares directly across the row.</p>
+<p>Each row shows a 640 m × 640 m crop from a test tile excluded from training. The five images share the X-band reference’s 2nd–98th percentile grayscale. Values are normalized, so this is a visual comparison rather than an absolute backscatter comparison.</p>
 <ol>
 <li><b>Sentinel-1 IW (10 m)</b>: the model input, Sentinel-1 VV backscatter. Each 10 m pixel is drawn as a 4 × 4 block of 2.5 m pixels, so the frames line up.</li>
-<li><b>Bicubic</b>: the same input smoothly interpolated to 2.5 m. No learning; it is the floor any model has to beat.</li>
-<li><b>CNN, pixel loss</b>: output of model 1. A residual convolutional network (EDSR-style: 16 residual blocks at 10 m, then two 2x upsampling steps) trained only to minimize the per-pixel difference (L1) from the real X-band. Pixel loss rewards the average of all plausible answers, so an unsure model blurs.</li>
+<li><b>Bicubic</b>: the same input smoothly interpolated to 2.5 m. The interpolation baseline uses no training.</li>
+<li><b>CNN, pixel loss</b>: output of model 1. A residual convolutional network (EDSR-style: 16 residual blocks at 10 m, then two 2x upsampling steps) trained only to minimize the per-pixel difference (L1) from the real X-band. Ambiguous targets tend to produce smooth predictions under this loss.</li>
 <li><b>CNN + GAN</b>: output of model 2, the only GAN output. The same network, started from model 1 and trained further with a discriminator that tries to tell its output from real X-band; the generator is rewarded for fooling it. That push is meant to add realistic texture. Here the discriminator won from the start and the generator ignored it, so this frame looks the same as model 1.</li>
-<li><b>Real X-band (2.5 m)</b>: the answer. Umbra or ICEYE spotlight imagery averaged from about 0.5 m to 2.5 m. For test tiles it was used only for scoring.</li>
+<li><b>Real X-band (2.5 m)</b>: the reference. Umbra or ICEYE spotlight imagery averaged from about 0.5 m to 2.5 m. For test tiles it was used only for scoring.</li>
 </ol>
-<p>Earlier versions of this page called the network a U-Net. It is a residual CNN without U-Net skip connections.</p></section>
+<p>The model is a residual CNN with 16 residual blocks, not a U-Net.</p></section>
 
 <section><h2>Side by side, one 640 m crop per test tile</h2><div class="grid" style="grid-template-columns:1fr">
 {"".join(f'<figure class="panel card" style="margin:0"><img src="data:image/png;base64,{p["img"]}" alt="panel {p["id"]}"><figcaption>{p["region"]} · {p.get("split", "test")} · {p["id"]}</figcaption></figure>' for p in panels)}
@@ -143,14 +142,13 @@ if (all.length) {{
 
 if sm:
     rows = "".join(f"<tr><td>{k}</td><td class='n'>{v:.3f}</td></tr>" for k, v in sm["detail_r_vs_sm"].items())
-    sm_html = (f"<section class='card'><h2>Stripmap honesty check ({sm['site']})</h2>"
+    sm_html = (f"<section class='card'><h2>Stripmap comparison ({sm['site']})</h2>"
                f"<p>Each image blurred to 5 m and compared with real Sentinel-1 Stripmap SLC (same C-band, ~5 m). "
-               f"Correlation of the 5 m detail layer: detail that matches Stripmap is real; detail that does not is invented.</p>"
+               f"Correlation of the 5 m detail layer: higher correlation indicates closer agreement; noise, date differences and misalignment can also lower it.</p>"
                f"<div class='tw'><table><thead><tr><th>Image</th><th>detail r vs SM</th></tr></thead><tbody>{rows}</tbody></table></div>"
                f"<p class='muted'>{sm.get('note', '')}</p></section>")
 else:
-    sm_html = ("<section class='card'><h2>Stripmap honesty check</h2><p>Not run: ASF refused the Stripmap SLC download "
-               "until the Earthdata account approves the ASF data agreement.</p></section>")
+    sm_html = ("<section class='card'><h2>Stripmap comparison</h2><p>This check was not run during Experiment 1 because ASF access was blocked at the time. The access issue was later resolved; Experiments 2 and 5 report the completed Stripmap comparisons.</p></section>")
 html = html.replace("SM_PLACEHOLDER", sm_html)
 
 extra = ""
@@ -169,14 +167,11 @@ if xpol is not None and len(xpol):
 if neighbors or contexts:
     fig = lambda items: "".join(f'<figure class="panel card" style="margin:0"><img src="data:image/png;base64,{b}" alt="{n}">'
                                 f'<figcaption>{n.replace("_", " ")}</figcaption></figure>' for n, b in items)
-    extra += (f"<section class='card'><h2>Beyond the footprints: did the models learn anything that transfers?</h2>"
+    extra += (f"<section class='card'><h2>Wider windows and other landscapes</h2>"
               f"<p>The models were run on Sentinel-1 around each held-out tile (9.6 km, the X-band tile outlined in orange) "
               f"and on landscapes the training set barely covers: farmland, forest, mountains, desert and villages. No "
               f"X-band truth exists in these areas, so this is a visual check only.</p>"
-              f"<p>What transfers is a speckle filter. Field edges, roads, canals and building blocks visible at 10 m come "
-              f"through cleaner and smoother, everywhere. No structure finer than the 10 m input appears, and contrast is "
-              f"compressed toward gray because the models learned to hedge. The GAN output again matches the pixel-loss "
-              f"output.</p></section>"
+              f"<p>On these unscored areas, the models mostly smooth the image. Roads, canals and field edges already visible in IW become easier to see, but the comparisons do not establish recovery of finer structures. Contrast is compressed, and the GAN and pixel-loss outputs look similar.</p></section>"
               f"<section><h2>Neighbors of held-out tiles</h2><div class='grid' style='grid-template-columns:1fr'>{fig(neighbors)}</div></section>"
               f"<section><h2>Other landscapes</h2><div class='grid' style='grid-template-columns:1fr'>{fig(contexts)}</div></section>")
 html = html.replace("EXTRA_PLACEHOLDER", extra)

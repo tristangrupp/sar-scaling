@@ -299,13 +299,8 @@ def round2():
 
 def main():
     P = []
-    P.append("""<header><h1>Experiment 3: a better open sensor for SAR super-resolution</h1>
-<p class="lede">NISAR's L-band radar beats Sentinel-1 as a source of <em>training pairs</em>. Every NISAR land
-acquisition records a 5 MHz band beside its 20 or 40 MHz band. On 670 track-frames, JPL also issues a 20 MHz
-product cut from the same 40 MHz echoes. That gives coarse and fine images of the same ground, at the same
-instant, from the same orbit, with no co-registration or change problem. We ran Experiment 2's design on those
-pairs, with the coarse mode as input, the fine mode as target, input consistency, and near and far held-out
-regions, plus an X-band geometry check.</p></header>""")
+    P.append("""<header><h1>Experiment 3: NISAR bandwidth pairs</h1>
+<p class="lede">NISAR provides low- and high-bandwidth products from the same acquisition. We used 20 MHz and 40 MHz L-band images to test super-resolution with the date, orbit and grid held fixed. The study also includes an 80 m to 20 m test, multi-date references, X-band edge checks and GAN fine-tuning. These tests concern NISAR; they do not produce sharper Sentinel-1 images.</p></header>""")
 
     P.extend(round4())
     P.extend(round3())
@@ -325,24 +320,10 @@ products exist, file sizes, and whether ranged reads work.</p>
 covers most of the Americas, Africa, South and East Asia and Australia. Lagos, São Paulo, Sydney, Jakarta,
 Nairobi, Houston and Denver all get it. Europe and Chicago get the 20+5 MHz mode (20 m GCOV); Chicago's is
 quad-pol. Each site had 17 to 53 GCOV products in four months.</p>
-<p>The decisive find is in the product metadata. A GCOV whose name carries <code>_M_</code> has
-<code>isMixedMode=True</code>, the same <code>plannedDatatakeId</code> as its 40 MHz twin,
-<code>acquiredRangeBandwidth</code> = 40 MHz and <code>processedRangeBandwidth</code> = 20 MHz, centred on the
-lower half of the band (1229 vs 1239 MHz). JPL makes it so 20 MHz and 40 MHz tracks can be stacked. For
-super-resolution, that makes it an official 20 MHz image of the same echoes as the 10 m product. Both products
-also carry the 5 MHz band B (80 m). The catalog lists 6,297 mixed-mode products since 17 June; 4,674 have a
-40 MHz twin, across 670 track-frames on every continent, and 109 of those frames contain open X-band collects.</p>
+<p>The catalog identifies mixed-mode GCOV products with <code>_M_</code> in the name and <code>isMixedMode=True</code>. Each shares a planned datatake ID with a 40 MHz product but is processed at 20 MHz, using the lower half of the acquired band (1229 versus 1239 MHz center frequency). In the study’s catalog snapshot, 4,674 of 6,297 mixed-mode products had a 40 MHz counterpart, across 670 track-frames; 109 frames also contained open X-band acquisitions.</p>
 <h2>Recommendation</h2>
-<p><b>For training super-resolution, NISAR L-band is the better open sensor.</b> It removes the confounds that sank
-Experiment 1 and that Experiment 2 must still fight: different dates, different orbits, single-shift
-co-registration, and the rarity of Stripmap. It also gives three real resolution levels (80, 20 and 10 m), so we can
-test how the scale factor matters with nothing else changing.</p>
-<p><b>Sentinel-1 is still the right sensor for C-band products.</b> L-band sees different scatterers: it passes
-through leaves and responds to trunks, ground and buildings. A NISAR model does not sharpen Sentinel-1, and
-moving between bands is what failed in Experiment 1. NISAR also already delivers 10 m GCOV over most land. So the
-practical targets are (a) Europe's 20 m GCOV to 10 m, which this experiment tests, and (b) 10 m to the 5 m GSLC
-grid, a natural next step. NISAR S-band, PALSAR-2, RCM and BIOMASS lack an open fine mode or global coverage.
-ALOS-4 and SAOCOM are not open.</p>
+<p>For this study, NISAR offered the most practical same-acquisition training pairs among the surveyed sources. Its paired bandwidth products avoid date differences and greatly reduce alignment problems. The 80 m, 20 m and 10 m grids also allow tests at different scale factors.</p>
+<p>NISAR and Sentinel-1 measure different radar bands. Results on L-band do not establish an improvement on C-band. This experiment tests 20 m to 10 m NISAR products and, in later rounds, 10 m GCOV to a 5 m GSLC reference. The survey below records the access and coverage limits found during the study; it is not a live data-availability guide.</p>
 <p style="color:var(--muted);font-size:0.9em">Sources: {"; ".join(a(u, html.escape(t)) for t, u in SOURCES)}.</p></section>""")
 
     # ---- design
@@ -438,7 +419,7 @@ The 5 MHz band B differs by a few tenths of a dB between the two files, so JPL p
 <h2>Landscapes the training set barely covers, from native 20 MHz acquisitions</h2>{fn(cx)}</section>""")
     P.extend(round2())
     res = json.loads((ROOT / "results_text.json").read_text()) if (ROOT / "results_text.json").exists() else {}
-    P.append(f"""<section class="card"><h2>Caveats</h2>{res.get('caveats', '<p>Pending results.</p>')}</section>""")
+    P.append(f"""<section class="card"><h2>Round 1 limitations</h2>{res.get('caveats', '<p>Pending results.</p>')}</section>""")
     P.append(f"""<section class="card"><h2>Status</h2>{res.get('status', '<p><span class="pill run">running</span> Tiles are being built.</p>')}</section>""")
     (ROOT / "page_body.html").write_text("\n".join(P), encoding="utf-8")
     print("page written", len("".join(P)) // 1024, "KB", flush=True)

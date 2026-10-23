@@ -35,7 +35,7 @@ On the far holdout <code>detail_r</code> rises from {q('far','bicubic','detail_r
 match bicubic on edge F, which is already high at 10 m for NISAR.</p>
 <div id="r2curve" style="margin:8px 0"></div>
 {P['lc_tab']}
-<p>Three findings, in order of confidence:</p>
+<p>Results of the NISAR transfer test:</p>
 <ol>
 <li><b>Zero-shot X-band does not work on L-band at all.</b> The X-band model applied to NISAR without fine-tuning
 scores MAE {q('far','zeroshot_x2_unc','mae'):.2f} (bicubic {q('far','bicubic','mae'):.2f}) and edge F
@@ -83,7 +83,7 @@ same input, lifts real-Sentinel-1 edge F to {X('real_s1', jn, 'edgeF_10m'):.3f} 
 and {X('real_s1','bicubic','edgeF_20m_s10'):.3f}), with the best edge chamfer of any model
 ({X('real_s1', jn, 'chamfer_m'):.1f} m against {X('real_s1','bicubic','chamfer_m'):.1f} m). It is the first learned model in
 this experiment to reach bicubic's edge placement on real Sentinel-1, and it does so while cleaning speckle. It does
-not exceed bicubic: <code>detail_r</code> stays at {X('real_s1', jn, 'detail_r'):.3f}. The target code works as a knob:
+not exceed bicubic: <code>detail_r</code> stays at {X('real_s1', jn, 'detail_r'):.3f}. Changing the target code changes the output:
 the X-spotlight style sharpens and invents detail, the NISAR style stays conservative, and real C-band rewards
 conservative.</p>
 <h4>Sidelobe check: inconclusive</h4>
@@ -99,15 +99,7 @@ with known point-spread functions, such as corner reflectors.</p>
 <p>Experiment 2's Stripmap tiles were still being fixed when round 2 ran, so the C-band arm moved to round 3
 (above).</p>
 
-<h3>Round 2 verdict</h3>
-<p>The evidence for a shared multi-sensor trunk is weak but positive. X-band pretraining is useless without real data
-of the new band, and slightly helpful with it. The gain appears at every data size on the far holdout and is largest
-in relative terms at the smallest sizes, as a useful shared prior should be, but it is a few thousandths of
-<code>detail_r</code>. The joint model costs a little on each band against per-band models. Its most useful property
-is the separate target-sensor code, which turns an X-band-trained network into one that matches bicubic's edge
-placement on real Sentinel-1 while removing speckle. A multi-sensor model is worth building if the goal is one network
-that handles many sensors acceptably, with per-band fine-tuning on small real sets. It is not worth it as a way to
-borrow resolution from X-band. Round 3 asks the same question on the Stripmap arm, where the same band offers a
-real 5 m target and more headroom than NISAR's quickly saturating 2x task.</p>
+<h3>Round 2 conclusion</h3>
+<p>Round 2 found small gains from X-band pretraining after NISAR fine-tuning, and small losses from sharing one network across bands. Changing the target-sensor code improved the shared model’s Sentinel-1 edge scores against X-band references to about bicubic level. These results support testing a shared model, but do not show that X-band data improves the final C-band model. Rounds 3 and 4 address that question using Stripmap references.</p>
 </section>"""
     return h

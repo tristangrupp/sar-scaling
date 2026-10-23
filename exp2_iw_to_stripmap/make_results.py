@@ -58,7 +58,7 @@ def main():
     out = []
 
     # ---------------------------------------------------------------- verdict
-    out.append(f"<section class='card' style='border-left:3px solid var(--a2)'><h2>Result so far</h2>{notes['verdict']}</section>")
+    out.append(f"<section class='card' style='border-left:3px solid var(--a2)'><h2>Main result</h2>{notes['verdict']}</section>")
     r3 = ROOT / "results_r3_section.html"           # round 3: training on the expanded set (r3_section.py)
     if r3.exists():
         out.append(r3.read_text(encoding="utf-8"))

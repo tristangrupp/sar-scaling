@@ -40,10 +40,10 @@ def render(c, s, lcm, table):
               "<th>MAE dB, scratch</th><th>MAE dB, X-pretrained</th><th>detail_r, scratch</th><th>detail_r, X-pretrained</th>"
               "<th>Edges ref→out m, scratch</th><th>Edges ref→out m, X-pretrained</th></tr>" + rows + "</table></div>")
 
-    return f"""<section class="card"><h2>Round 3: the Stripmap anchor (same sensor, same band, 5 m) <span class="pill done">done</span></h2>
+    return f"""<section class="card"><h2>Round 3: evaluation against 5 m Stripmap <span class="pill done">done</span></h2>
 <p>Experiment 2 finished its IW to Stripmap pairs: 396 tiles, Sentinel-1 IW RTC at 10 m against Stripmap SLC
 processed to 5 m. It fixed its geolocation bug (south-up output written north-up, plus a geoid shift), and per-scene
-offsets are now under about 16 m. This is the truth round 1 lacked: same sensor, same band, a real 5 m target. We used
+offsets are now under about 16 m. This provides the reference missing from round 1: same sensor, same band, a real 5 m target. We used
 Experiment 2's splits exactly (200 training, 44 validation, 152 test tiles) and its reference, the Lee-filtered,
 histogram-matched Stripmap. We scored with Experiment 2's own <code>score.py</code> functions (<code>tile_scores</code>,
 homogeneous windows, its normalization), averaged per holdout group as Experiment 2 does, so every number below sits
@@ -67,21 +67,20 @@ pixel, beats bicubic on every pilot-holdout average:</p>
 ({L('scratch', 0.05, 'ssim_lee'):.1f} at 5 %). The cost is the same as in round 1. The zero-shot model misses more
 reference edges ({v('zeroshot_x2_unc','chamfer_t2p_m_raw'):.1f} m against {v('bicubic','chamfer_t2p_m_raw'):.1f} m),
 smooths hard (ENL {v('zeroshot_x2_unc','enl'):.0f}) and brightens slightly (mean ratio {v('zeroshot_x2_unc','moi'):.2f}).
-Round 1's negative verdict was partly an artifact of scoring against another band: X-band truth punishes C-band output
-for being C-band.</p>
+The difference between the two evaluations shows why the reference band matters. A negative result against X-band does not establish a negative result against C-band Stripmap.</p>
 
 <h3>Learning curve: does X-band pretraining help once Stripmap data is available?</h3>
 <div id="r3curve" style="margin:8px 0"></div>
 {lc_tab}
-<p>Yes, but not where a shared-trunk argument predicts. At 5 and 10 % of the tiles (10 and 20), pretrained and scratch
+<p>Pretraining helped the 3,000-step L1 runs at some data sizes. At 5 and 10 % of the tiles (10 and 20), pretrained and scratch
 models are indistinguishable. Seed-to-seed spread is about 1 SSIM point there, larger than any difference between
 starts. From 25 % up, the pretrained model is ahead on every seed-averaged fidelity metric. At 100 % it scores SSIM
 {v('sm_x2_unc_f1.0_s0','ssim_lee'):.2f} against {v('sm_scratch_f1.0_s0','ssim_lee'):.2f}, MAE
 {v('sm_x2_unc_f1.0_s0','mae_db_raw'):.3f} against {v('sm_scratch_f1.0_s0','mae_db_raw'):.3f} dB, and <code>detail_r</code>
 {v('sm_x2_unc_f1.0_s0','detail_r_raw'):.3f} against {v('sm_scratch_f1.0_s0','detail_r_raw'):.3f}. At equal steps the
 gain grows with data rather than shrinking. The X-band start works as a better initialization for a model that has
-enough real data to use it, not as a substitute for real data.</p>
-<p>Pretraining also carries its X-band habit. Pretrained models smooth more: ENL {v('sm_x2_unc_f1.0_s0','enl'):.0f} against
+enough real data to use it. Round 4 tests whether this benefit persists with the full training method and budget.</p>
+<p>Pretraining also increases smoothing. Pretrained models smooth more: ENL {v('sm_x2_unc_f1.0_s0','enl'):.0f} against
 {v('sm_scratch_f1.0_s0','enl'):.0f}, and they miss more reference edges
 ({v('sm_x2_unc_f1.0_s0','chamfer_t2p_m_raw'):.1f} m against {v('sm_scratch_f1.0_s0','chamfer_t2p_m_raw'):.1f} m). On the
 paper test scenes the gains shrink to a few tenths of an SSIM point.</p>
@@ -120,14 +119,8 @@ less faithful: MAE {v('joint3_target_X_spotlight','mae_db_raw'):.2f} dB against
 most faithful brightness, the X code slightly crisper structure, and the NISAR code the most conservative output.</p>
 {main_tabs}
 
-<h3>Round 3 verdict</h3>
-<p>With a same-band truth, the case for a multi-sensor radar model is stronger than rounds 1 and 2 suggested. X-band
-knowledge transfers to C-band zero-shot, worth about 10 Stripmap training tiles. X-band pretraining improves a
-Stripmap model at equal budget, more as the real data grows. A shared X+L+C trunk with sensor codes loses nothing on
-C-band against a per-band model. What X-band does not supply is C-band's own texture: pretrained and zero-shot models
-smooth more and miss more fine edges than Stripmap-trained ones. A multi-sensor model is worth building as a shared
-trunk with per-sensor input and target codes, pretrained on everything and fine-tuned on each band's real pairs. It is
-not worth building as a replacement for those pairs.</p>
+<h3>Round 3 conclusion</h3>
+<p>Round 3 found useful transfer against same-band Stripmap references. The X-band-only model reached about the SSIM of a scratch model trained on 10 Stripmap tiles, and pretraining improved some short L1 runs. A shared network performed similarly to the separate C-band model. However, transferred models smoothed more and missed fine edges. Round 4 above tests the stronger claim under matched settings and finds no improvement beyond seed variation in the final model.</p>
 <p style="color:var(--muted)">Caveats: one seed at 50 and 100 %; seed spread at small shares is about 1 SSIM point.
 L1 training against arm A's SSIM training makes the cross-experiment SSIM comparison loss-dependent. Experiment 2's
 tiles are coastal and island scenes plus three inland holdouts, so the land-cover mix is narrow.</p>

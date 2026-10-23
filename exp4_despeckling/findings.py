@@ -1,30 +1,21 @@
 """Results prose for the Experiment 4 page (numbers from metrics_dates.csv, downstream_*.csv, ckpt/*_log.csv)."""
 
 FILL = {
-"FINDINGS": """<h3>What the numbers say</h3>
+"FINDINGS": """<h3>Results</h3>
 <p><b>The supervised CNN is the most faithful single-date filter, by a modest margin.</b> Its held-out median PSNR is
 21.5 dB, against 21.1 for Lee, 20.6 for refined Lee, 20.7 for Gamma-MAP and 18.1 for the raw image. It also has the best
 SSIM (0.52 vs 0.49 for Lee), the lowest MAE (0.98 dB, tied with Lee), the best gradient correlation with the reference
 (0.56 vs 0.51), no measurable bias (+0.04 dB), and no edge structure in its ratio image (correlation -0.01, the same as
 the oracle). It beats refined Lee by 1.3 to 1.8 dB at five of six held-out sites. Against plain Lee it wins by 0.3 to
 0.9 dB at four sites and ties in Gabon.</p>
-<p><b>It fails in the Atacama.</b> The desert surface has real, stable 10 m texture: the temporal mean there has an
-ENL of only 21. The input is also less speckled than anything in training (ENL 9.5). The CNN smooths that texture away
-and over-brightens by 0.67 dB, scoring 18.6 dB against 20.9 for Lee and 22.9 for a 3x3 boxcar. The network learned a
-speckle level and a log-bias correction from the training sites and applies them whatever the input looks like.</p>
+<p>The original supervised CNN performs poorly in the Atacama. It smooths stable desert texture and introduces a +0.67 dB bias, scoring 18.6 dB PSNR versus 20.9 for Lee and 22.9 for a 3×3 boxcar. This site has less speckle than the training data (single-date ENL 9.5) and substantial real texture (reference ENL 21).</p>
 <p><b>Every CNN smooths flat areas more than the reference does, and blurs edges a little.</b> The supervised CNN's
 ENL in homogeneous areas is 100, against 61 for the 22 to 27 date mean itself. Its EPD-ROA of 0.86 means edge contrast
 drops by about 14 %, like Lee (0.88) and worse than refined Lee (0.97) and Gamma-MAP (1.00). Those two keep edges by
 design but leave more speckle (ratio ENL 12 to 13, against 5.8 for pure speckle). By eye, the new CNNs keep a fine
 grain that makes them look less clean than Lee, even though they sit closer to the reference.</p>
-<p><b>Experiment 1's network is not a good despeckler once you measure it.</b> Back at 10 m it scores 18.5 to 18.7 dB
-PSNR, barely above the raw image and 2.4 dB below Lee. It wipes out fine texture (ENL about 800 to 900), loses 18 % of
-the mean power, and compresses contrast. Its ratio image has an ENL of 1.3 to 1.4, far below the 5.8 of pure speckle, so
-it removed real signal along with the speckle. The Capella retrain changes almost nothing (+0.1 dB). The clean look in
-Experiment 1's context panels was mostly oversmoothing.</p>
-<p><b>Noise2Noise nearly matches the supervised CNN without any clean target</b> (20.7 dB, SSIM 0.50, gradient
-correlation 0.56). It smooths more (ENL 162) and needed a +0.38 dB offset, fitted on training sites, to undo the
-log-domain bias. This matters in practice: it needs only two dates of the same orbit, not a stable 20-date stack.</p>""",
+<p>The transferred Experiment 1 model scores only 18.5–18.7 dB PSNR at 10 m, about 2.4 dB below Lee. It removes texture, loses about 18% of mean power and compresses contrast. Its ratio-image ENL is 1.3–1.4, versus 5.8 for the reference speckle ratio. The Capella retraining changes PSNR by about 0.1 dB. The smooth appearance mainly reflects excessive filtering.</p>
+<p>Noise2Noise reaches 20.7 dB PSNR, SSIM 0.50 and gradient correlation 0.56 without a temporal-mean training target. It smooths more than the supervised model (ENL 162) and uses a +0.38 dB bias correction fitted on training sites. Training needs pairs of same-orbit dates rather than a stable 20-date stack.</p>""",
 
 "DFINDINGS": """<p><b>With texture features, every CNN helps a little and the classic filters do not help at all.</b>
 Overall accuracy is 0.649 on the raw image and 0.65 to 0.66 after any classic filter. The window features already
@@ -33,14 +24,8 @@ supervised 0.681, GAN 0.669. The 22 to 27 date temporal mean reaches 0.733, so a
 half of the gap between raw and a full stack. Macro F1 follows the same order (0.45 raw, 0.51 Noise2Noise, 0.55 stack).
 Accuracy varies by about ±0.02 across the three dates, so the CNN-vs-classic gap holds but the order among the CNNs
 is not firm.</p>
-<p><b>Pixel-only accuracy rewards smoothing, not fidelity.</b> The heavily oversmoothed Experiment 1 outputs score highest
-(0.57), above even the temporal mean (0.48). One pixel of a very smooth image carries its neighbourhood's average, and
-WorldCover labels are spatially smooth. Read this column as a measure of how much each method averages, not of
-quality.</p>
-<p><b>The boundary test does not separate the methods.</b> Every single-date input lands between 0.37 and 0.40 F1; the
-temporal mean reaches 0.44. WorldCover boundaries come from optical imagery and mark land-cover changes that C-band
-often does not see, and even after a 5x5 majority filter 10 to 19 % of pixels sit on a boundary. Atacama and Gabon
-have too few boundary pixels and are skipped.</p>""",
+<p>Pixel-only classification favors heavily smoothed images: Experiment 1 reaches 0.57 accuracy, above the temporal mean’s 0.48. Smoothing makes each pixel represent its neighborhood, which can agree with spatially smooth WorldCover labels. This score alone is a poor measure of image fidelity.</p>
+<p>The WorldCover boundary test gives similar F1 for all single-date methods (0.37–0.40); the temporal mean reaches 0.44. These optically derived boundaries need not produce a radar edge. Atacama and Gabon have too few boundary pixels to score. Round 2 uses FTW field labels for a separate boundary test.</p>""",
 
 "GAN": """<p>The fine-tune ran 3,000 steps from the supervised weights. The stabilizers worked: the discriminator
 never ran away. Its loss settled at 0.09 rather than Experiment 1's 0.001; it scored real targets at 0.72 and generated
@@ -78,7 +63,5 @@ on a textured desert unlike its training sites.</p>
 <p><span class="pill neg">No</span> for Experiment 1's network as a despeckler. Its clean look comes from removing
 real texture and mean power, and it scores barely above the raw image against the reference. A GAN fine-tune, even a
 stable one, adds nothing measurable.</p>
-<p>Next steps, if this continues: train on many more sites, including deserts and rough terrain; feed the network the
-input's ENL so it stops assuming one speckle level; and prefer Noise2Noise, which needs only two dates and so scales to
-any orbit without a stable stack.</p>""",
+<p>Round 2 below tests more training sites, speckle-level conditioning and VV+VH inputs. It also repeats the mapping evaluation and adds FTW field-boundary labels.</p>""",
 }

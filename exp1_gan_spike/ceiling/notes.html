@@ -1,15 +1,5 @@
-<h3>What it means</h3>
-<p>Two real X-band images of the same place agree on fine detail only when the viewing geometry nearly repeats and the
-images line up to within a meter or two. Then detail_r reaches 0.45–0.63. Typical pairs score 0.1–0.25, and pairs with
-different geometry score below 0.1.</p>
-<p>Registration dominates the metric. The same image shifted by one 2.5 m pixel drops to 0.37; shifted by 5 m, to 0.11.
-Raw offsets between collects were large: median 40 m, and 64% of pairs off by more than 20 m. A single phase correlation
-capped at 8 pixels fixed almost nothing; a coarse 10 m step followed by a 2.5 m refinement was needed.</p>
-<p>Real X-band blurred to 10 m scores about as well (0.12–0.18) as full-resolution X-band, except in near-repeat pairs.
-Most of the detail agreement between collects is sub-10 m edges, not true 2.5 m texture.</p>
-<p><b>For the spike:</b> its truth tiles were aligned to Sentinel-1 only at 10 m and their geometry is unrelated to
-Sentinel-1's, so a realistic ceiling for that setup was about 0.1–0.2, not 0.6–0.7. The models' 0.05 still sits below
-that, below blurred real X-band, and no better than bicubic, and their fine-detail energy (0.06) is far below every real
-reference (0.89 for real pairs, 0.37 for the 10 m blur). The models did fail, but the metric could never have shown
-success much above 0.2. A fair test needs near-repeat-geometry truth, sub-pixel registration, or a shift-tolerant metric,
-which experiment 2's edge-distance loss and metrics provide.</p>
+<h3>Interpretation</h3>
+<p>Fine-detail agreement depends strongly on viewing geometry and alignment. Nearly repeated views aligned within a meter or two reach detail correlation of 0.45–0.63. Other pairs score about 0.1–0.25, falling below 0.1 when geometry differs substantially.</p>
+<p>The metric is sensitive to alignment: shifting an image by 2.5 m reduces its self-correlation to 0.37; a 5 m shift reduces it to 0.11. The median raw offset between acquisitions was 40 m, with 64% exceeding 20 m. Registration required a coarse 10 m step followed by refinement at 2.5 m.</p>
+<p>Outside nearly repeated views, blurring X-band to 10 m gives similar correlation (0.12–0.18) to using the full-resolution image. Much of the shared signal is therefore in broader edges rather than repeatable 2.5 m texture.</p>
+<p>Experiment 1 used 10 m alignment and images with different viewing geometry. These repeat-image results suggest that correlations around 0.1–0.2 are a more useful reference than 0.6–0.7 for that setup, but they do not establish a strict upper bound. The model’s correlation near 0.05 and low fine-detail energy still show poor recovery. Finer registration, repeated viewing geometry and edge-distance metrics would make a stronger test.</p>

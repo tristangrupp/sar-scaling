@@ -2,7 +2,7 @@
 
 ## Amieva, Ayala and Galar (2026): Sentinel-1 IW to Stripmap
 
-*A deep learning approach to jointly super-resolve and despeckle Sentinel-1 imagery.* Acta Astronautica 238 (2026) 1396–1407. DOI 10.1016/j.actaastro.2025.07.071. Open access: https://hdl.handle.net/2454/55549 (PDF and extracted text in this folder). Tracasa Instrumental and the Public University of Navarre. Earlier conference version presented at ESA's SPAICE workshop.
+*A deep learning approach to jointly super-resolve and despeckle Sentinel-1 imagery.* Acta Astronautica 238 (2026) 1396–1407. DOI 10.1016/j.actaastro.2025.07.071. Open access: https://hdl.handle.net/2454/55549 (paper files are kept locally and excluded from Git). Tracasa Instrumental and the Public University of Navarre. Earlier conference version presented at ESA's SPAICE workshop.
 
 What they did, from the paper:
 
@@ -21,19 +21,18 @@ What they did, from the paper:
 
 ## Ahn et al. (2025): Capella-only super-resolution
 
-*SAR Super-Resolution Using Capella Satellite Imagery.* ISPRS Archives XLVIII-G-2025, 87–92. DOI 10.5194/isprs-archives-XLVIII-G-2025-87-2025. SI Analytics, Daejeon. PDF and text in this folder.
+*SAR Super-Resolution Using Capella Satellite Imagery.* ISPRS Archives XLVIII-G-2025, 87–92. DOI 10.5194/isprs-archives-XLVIII-G-2025-87-2025. SI Analytics, Daejeon. Paper files are kept locally and excluded from Git.
 
 - Capella 0.5 m GSD images as high-resolution references; low-resolution inputs made by bicubic downsampling of the same images (×2: 512 → 1024 px patches). 22,951 training and 5,760 test pairs, 80:20 split.
 - Model: Restormer modified with a pixel-shuffle upsampling head; L1 loss; SSIM and PSNR.
 - Sentinel-1 is not used. Capella is compared only against a degraded copy of itself.
 
-## The gap this project tests
+## What this project tests
 
-Nobody, as far as we can find, has tested whether commercial X-band geometry improves a same-sensor Sentinel-1 IW to Stripmap model. Experiment 2 does that: reproduce the Amieva et al. setup as arm A, add Capella (and Umbra, ICEYE) edges as a tolerant, infrastructure-only loss as arm B, and score both on held-out Stripmap, near and far from X-band coverage.
+Experiment 2 adapts the IW-to-Stripmap method and adds X-band edge guidance. It compares models with and without that guidance on the same held-out Stripmap data. Experiment 5 then tests X-band and X-band + NISAR pretraining with the training method and budget held constant.
 
-Differences to resolve before claiming a fair comparison:
+Neither approach improved the final model under the tested settings. See the [Experiment 2](https://tristangrupp.github.io/sar-scaling/exp2.html) and [Experiment 5](https://tristangrupp.github.io/sar-scaling/exp5.html) results.
 
-- Their reference is Lee-filtered Stripmap; ours is not yet. Score against both.
-- They use SNAP with terrain flattening; ours uses sarsen, with terrain flattening off for speed. Turn it on now that the scene is cropped to the tile.
-- They train ESRT with SSIM loss; arm A should use ESRT (public code from Lu et al.) and the same loss, not only our residual CNN.
-- Their 10 Stripmap scenes are listed; downloading them and their test images lets us report on the same scenes they did.
+## Limits of the paper comparison
+
+We use Lee-filtered references, ESRT and an SSIM-based loss, and evaluate tiles from the paper's test scenes. However, our Stripmap processing uses sarsen rather than SNAP, registration uses shifts rather than dense Gefolki flow, and evaluation uses selected 3.2 km tiles rather than whole scenes. Training budgets also differ. Compare model rankings within this study; do not compare its absolute scores directly with the paper's.

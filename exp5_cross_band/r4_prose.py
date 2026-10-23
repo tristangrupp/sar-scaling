@@ -21,8 +21,8 @@ def render(c, vs, dec, T, dec_tab, paper_tab):
                    for p in pan)
     figs_c = "".join(f'<figure><img src="{img(p)}" alt="{p.stem}"><figcaption>{p.stem.replace("_", " ")} (no Stripmap truth)</figcaption></figure>' for p in ctxp)
     n_beats = int(dec.beats.sum())
-    return f"""<section class="card"><h2>Round 4: does pretraining beat the published baseline at a matched recipe?
-<span class="pill neg">no, within seed noise</span></h2>
+    return f"""<section class="card"><h2>Round 4: pretraining with matched training settings
+<span class="pill neg">no improvement beyond seed variation</span></h2>
 <p><b>Decision:</b> at Experiment 2's arm A recipe and budget, neither X-band nor X-band + NISAR pretraining beats arm A
 beyond seed noise, in the near group (Owens), the far group (W Australia), Houston or the paper's test scenes, for
 either architecture. {n_beats} of {len(dec)} group-by-variant tests pass the rule. Over all pilot holdouts at 100 % of
@@ -30,12 +30,11 @@ the data, the seed means are close. ESRT: scratch {v('esrt','scratch',1.0,'ssim_
 {v('esrt','x',1.0,'ssim_lee'):.2f}, X+L-pretrained {v('esrt','xl',1.0,'ssim_lee'):.2f} SSIM. CNN: scratch
 {v('cnn','scratch',1.0,'ssim_lee'):.2f}, X {v('cnn','x',1.0,'ssim_lee'):.2f}, X+L {v('cnn','xl',1.0,'ssim_lee'):.2f}.
 Seed SDs are about 0.1. The round 3 gain (+0.7 SSIM from X-band pretraining) came from models trained with an L1
-loss for 3,000 steps. With arm A's SSIM loss and 8,000 steps, scratch training reaches the same place, and the head
-start disappears.</p>
+loss for 3,000 steps. With arm A's SSIM loss and 8,000 steps, the advantage is within the variation between training seeds.</p>
 
 <h3>What was matched</h3>
 <ul>
-<li><b>Fine-tune:</b> Experiment 2's <code>train_sr.py</code> loop, imported rather than copied, so nothing drifts. Loss 0.85 x (1 - SSIM)
+<li><b>Fine-tune:</b> Experiment 2's <code>train_sr.py</code> loop, imported rather than copied, using the same implementation. Loss 0.85 x (1 - SSIM)
 against the Lee-filtered, histogram-matched Stripmap, plus 0.15 x input consistency. Patches 48 to 96 px with
 rotation and flip, min-max normalization from the full training split, OneCycleLR (ESRT 1e-3, CNN 5e-4), gradient clip
 1, 8,000 steps at batch 16, best validation checkpoint every 1,000 steps. Exp 2's own <code>esrt_a</code> and <code>cnn_a</code> are
@@ -72,14 +71,7 @@ W Australia for ESRT from scratch. No 25 % variant separates from scratch, and e
 <h3>The paper's metric set on its three test scenes</h3>
 {T['paper test scenes']}
 {paper_tab}
-<p>This is as close to Amieva et al. as our data allows, and it is not close. The paper reports SSIM 70.14 and PSNR
-26.07 dB on whole scenes. We score 24 tiles of 3.2 km cut from the same three scenes, chosen for structure rather than
-covering the scene. Water is masked. The reference is our own sarsen processing of the Stripmap SLC, raw or
-Lee-filtered and histogram-matched, not their reference. SSIM is the masked mean of the SSIM map. Whole scenes dominated
-by homogeneous fields score far higher on both metrics. Our absolute numbers are therefore not comparable with the
-paper's. The ranking is: every model beats bicubic by about 5 SSIM points, and every learned variant sits within 0.1
-SSIM of the others. Despeckling metrics land in the paper's range: ENL 118 to 143 against its 202, mean of intensity
-ratio 1.02 to 1.06 against 1.022.</p>
+<p>The paper reports SSIM 70.14 and PSNR 26.07 dB on whole scenes. Here we score 24 selected 3.2 km tiles from its three test scenes, with water masked and our own sarsen-processed references. These absolute scores are not directly comparable. Within our evaluation, learned models exceed bicubic by about 5 SSIM points and differ from each other by about 0.1. ENL is 118–143 versus the paper’s 202; mean intensity ratios are 1.02–1.06 versus 1.022.</p>
 
 <h3>Transfer panels (exp 2's neighborhoods)</h3>
 <p>Same windows as Experiment 2's panels: 9.6 km of IW around one held-out tile per group, and the landscapes it uses for
@@ -87,12 +79,6 @@ context. The best pretrained model by all-pilot SSIM (CNN, X-pretrained, seed 2)
 They are hard to tell apart by eye, which matches the numbers.</p>
 {figs}{figs_c}
 
-<h3>Round 4 verdict</h3>
-<p>Pretraining on X-band, or on X-band plus L-band, buys nothing measurable once the Stripmap model gets the published
-recipe and its full budget. It does not beat arm A in the near or far group beyond seed noise, for ESRT or the CNN.
-Earlier rounds showed X-band priors are real: zero-shot transfer works and pretraining speeds up short training. At
-200 real pairs and 8,000 steps, though, the C-band data alone reaches the same optimum. A multi-sensor trunk remains
-useful for convenience (one network, sensor codes, a good start when compute or data is scarce), not as a route to
-better Stripmap-level output. A future round would need either far fewer real pairs or a harder target to show a
-benefit.</p>
+<h3>Round 4 conclusion</h3>
+<p>With 200 real training tiles, SSIM loss and 8,000 steps, neither X-band nor X-band + L-band pretraining met the improvement rule in any of the 40 comparisons. Earlier rounds found useful direct transfer and faster progress during short L1 runs, but those gains did not establish a better final Stripmap model. A shared network may simplify support for several sensors; this study did not show a final accuracy advantage.</p>
 </section>"""
