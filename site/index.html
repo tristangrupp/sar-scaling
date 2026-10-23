@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SAR Bench</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SAR Super-resolution Log</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>
 :root { --bg:#f3f5f7; --panel:#fff; --fg:#18212b; --muted:#5b6875; --line:#d5dbe1; --land:#dde3e8;
   --accent:#1f6fd1; --a2:#c2410c; --a3:#0f8a6a; --good:#1d7a3a; --warn:#a15c00; --bad:#b42318;
   --f-display:"Archivo","Helvetica Neue",Arial,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
@@ -37,68 +37,40 @@ svg text { fill:var(--muted); font:11px var(--f-body); }
 .md h1 { display:none; } .md h2 { font:700 1.1rem var(--f-display); text-transform:none; letter-spacing:0; color:var(--fg); margin:20px 0 6px; }
 .md ul { padding-left:20px; } .md li { margin-bottom:4px; }
 a { color:var(--accent); }
-</style></head><body><nav class="sitenav"><div class="in"><b>SAR Bench</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
-<header><h1>SAR Bench: sharpening and despeckling radar images</h1>
-<p class="lede">Six experiments test whether open radar data can improve Sentinel-1 images.
-The comparisons cover X-band imagery, Sentinel-1 Stripmap, NISAR bandwidth pairs and learned speckle filters.</p></header>
-<section class="card"><h2>Main result</h2>
-<p>X-band data did not improve the final Sentinel-1 model under the settings tested. It did not help as a direct
-image target or an edge loss. Pretraining helped some short runs, but the advantage disappeared with the full
-training method and budget. Same-sensor training and learned despeckling produced the clearest gains.</p>
-<p>These results come from small research datasets. They do not establish a general limit on radar super-resolution.</p></section>
-<section class="card"><h2>Experiments 0–5: complete</h2><div class="exp">
-<span class="k">0</span><div><a href="overlap.html">Where the data overlaps</a>
-<p>The atlas found 1,069 candidate Umbra–Stripmap pairs at 12 sites, 211 ICEYE pairs at 7 sites and 110 Capella
-pairs at 4 sites. Most Capella imagery uses a different polarization from Sentinel-1 IW over land.</p></div>
-<span class="k">1</span><div><a href="spike.html">Predicting X-band images from Sentinel-1</a>
-<p>The tested models mainly smoothed the input. Detail correlation was 0.04, versus 0.03 for bicubic interpolation.
-The <a href="ceiling.html">repeat-image check</a> shows how alignment and viewing geometry also limit this score.</p></div>
-<span class="k">2</span><div><a href="exp2.html">Training Sentinel-1 IW against Stripmap</a>
-<p>The same-sensor model beat bicubic, largely through despeckling. Adding X-band edge loss reduced held-out
-SSIM by 0.21 points. More inland data and a change mask made little difference.</p></div>
-<span class="k">3</span><div><a href="exp3.html">Training with NISAR bandwidth pairs</a>
-<p>Images from the same acquisition provide a cleaner test of the method. The tuned model beat bicubic on all
-five metrics in the distant test regions. X-band edge loss did not help; GAN fine-tuning added texture while
-reducing detail correlation. These results apply to L-band NISAR.</p></div>
-<span class="k">4</span><div><a href="exp4.html">Reducing Sentinel-1 speckle</a>
-<p>A VV+VH Noise2Noise model gained about 0.7 dB PSNR over Lee. WorldCover classification accuracy rose from
-0.770 for raw VV+VH to 0.806. Field-boundary detection did not improve, and textured desert remained difficult.</p></div>
-<span class="k">5</span><div><a href="exp5.html">Pretraining across radar bands</a>
-<p>An X-band-only model beat bicubic against Stripmap references, and pretraining helped short runs. With
-200 real training tiles and 8,000 steps, none of 40 comparisons met the rule for an improvement over training
-from scratch.</p></div></div></section>
-<section class="card"><h2>How to read the comparisons</h2>
-<p>Sentinel-1 IW uses a 10 m pixel grid, with spatial resolution of about 20 m. Drawing an output on a finer grid
-does not establish that it resolves finer features. We check whether added detail agrees with radar references,
-then test whether cleaner images help mapping.</p>
-<p>The references contain speckle and can differ in wavelength, date, viewing angle and alignment. Each page
-reports those limits. Experiments 2 and 5 adapt a published method, but their absolute scores cannot be compared
-directly with the paper’s whole-scene results.</p>
-<p><a href="related.html">Related work</a> ·
-<a href="https://github.com/tristangrupp/sar-scaling">Code, result tables and experiment READMEs on GitHub</a></p></section>
-<section class="card"><h2>Terms used on these pages</h2><dl>
-<dt><b>SAR and speckle</b></dt><dd>Synthetic aperture radar images reflected microwave signals.
-Speckle is the grainy variation caused by interference between returns.</dd>
-<dt><b>X-, C- and L-band</b></dt><dd>Radar wavelength groups: about 3 cm, 5.6 cm and 24 cm here.
-They can show different scattering patterns over the same ground.</dd>
-<dt><b>IW and Stripmap</b></dt><dd>Sentinel-1 acquisition modes. IW covers wide areas;
-Stripmap SLC provides the finer reference used in this study.</dd>
-<dt><b>VV, VH and HH</b></dt><dd>Transmit/receive polarization channels.
-Comparisons across channels require care because the image contrast can differ.</dd>
-<dt><b>Bicubic</b></dt><dd>A standard interpolation baseline. It makes a finer pixel grid without learning new detail.</dd>
-<dt><b>Held out, seed and zero-shot</b></dt><dd>Held-out data is excluded from training.
-A seed controls training randomness. Zero-shot means applying a trained model to a new domain without retraining.</dd>
-<dt><b>SSIM, PSNR and MAE</b></dt><dd>Measures of structural similarity, signal-to-error ratio and average absolute error.
-Higher SSIM and PSNR are better; lower MAE is better. Read scores within each experiment’s evaluation setup.</dd>
-<dt><b>Detail correlation and energy</b></dt><dd>Correlation checks whether fine detail agrees with the reference.
-Energy measures its strength. More energy alone can mean more noise or invented texture.</dd>
-<dt><b>Edge distance and ENL</b></dt><dd>Edge distances measure how far one image’s edges lie from another’s.
-ENL (equivalent number of looks) measures smoothness in uniform areas; high values can also reflect excessive filtering.</dd>
-<dt><b>CNN, GAN and Noise2Noise</b></dt><dd>A CNN learns image filters. A GAN adds a discriminator to encourage realistic-looking output.
-Noise2Noise learns from noisy image pairs rather than a clean target.</dd></dl></section>
-<section class="card"><h2>Files and rebuilding</h2>
-<p>The repository includes code, tables, figures and these pages. Scenes, processed image tiles, checkpoints and
-logs stay local. With the experiment reports and results available, rebuild the site using
-<code>python build_site.py</code>. The <a href="https://github.com/tristangrupp/sar-scaling#running-the-code">README</a>
-describes the original environments and data paths.</p></section>
-</main></body></html>
+</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
+<header><h1>Can open SAR sharpen Sentinel-1?</h1>
+<p class="lede">Experiments on sharpening Sentinel-1 radar images and reducing speckle with open X-band data (Capella, Umbra and ICEYE), Sentinel-1 Stripmap and NISAR.</p></header>
+
+<section class="card"><h2>Experiment log</h2><div class="exp">
+ <span class="k">0</span><div><a href="overlap.html">Overlap atlas</a> <span class="pill done">done</span>
+   <p>Open X-band imagery that overlaps Sentinel-1 Stripmap. The atlas found 1,069 candidate Umbra pairs at 12 sites, 211 ICEYE pairs at 7 sites and 110 Capella pairs at 4 sites. Most Capella imagery is HH, which limits matches with Sentinel-1 VV/VH.</p></div>
+ <span class="k">1</span><div><a href="spike.html">Predicting 2.5 m X-band from Sentinel-1 IW</a> <span class="pill neg">negative</span>
+   <p>Detail match 0.04 (close to zero); fine-detail energy 5% of the real X-band. The models mainly smooth the input.</p></div>
+ <span class="k">1b</span><div><a href="ceiling.html">Comparing two real X-band images</a> <span class="pill done">done</span>
+   <p>Two real X-band images of the same place often score poorly too. Viewing angle and alignment affect the result.</p></div>
+ <span class="k">2</span><div><a href="exp2.html">Sentinel-1 IW → Stripmap at 5 m, X-band for geometry only</a> <span class="pill neg">negative for X-band</span>
+   <p>The baseline adapted from the published ESRT method beat bicubic, mostly by reducing speckle. Adding X-band edge loss reduced held-out SSIM by 0.21 points (p &lt; 0.001). More inland data and a change mask made little difference in round 3.</p></div>
+ <span class="k">3</span><div><a href="exp3.html">NISAR bandwidth pairs</a> <span class="pill done">done</span>
+   <p>NISAR provides low- and high-bandwidth images from the same acquisition. The tuned model beat bicubic on all five metrics in the distant test regions. X-band edge loss did not help; GAN fine-tuning added texture but reduced detail correlation.</p></div>
+ <span class="k">4</span><div><a href="exp4.html">Despeckling: cleaner, more interpretable Sentinel-1</a> <span class="pill done">done</span>
+   <p>A VV+VH Noise2Noise model trained on 24 sites gained about 0.7 dB PSNR over Lee. WorldCover classification accuracy rose from 0.770 on raw images to 0.806. It still performed poorly on textured desert and did not improve field-boundary detection.</p></div>
+ <span class="k">5</span><div><a href="exp5.html">Pretraining across radar bands</a> <span class="pill done">done</span>
+   <p>An X-band-only model beat bicubic against Stripmap references, and pretraining helped short runs. With 200 real training tiles and the full 8,000-step recipe, none of 40 comparisons showed an improvement beyond seed variation.</p></div>
+</div></section>
+
+<section class="card"><h2>Where things stand</h2>
+<p>X-band data did not improve the final Sentinel-1 model in these tests. Direct image targets and edge guidance did not help. Pretraining helped short runs, but the benefit disappeared with the full training schedule. Training against images from the same sensor and reducing speckle gave the clearest gains.</p></section>
+
+<section class="grid">
+ <div class="card"><h2>What changed after experiment 1</h2>
+ <p>Experiment 1 tried to predict 2.5 m X-band imagery from Sentinel-1 IW, which has a 10 m pixel grid and about 20 m spatial resolution. The images also differed in wavelength and viewing angle. The models smoothed the input without recovering the fine structure visible in X-band.</p>
+ <p>Experiment 2 used 5 m Sentinel-1 Stripmap as the reference, keeping the radar band fixed. It then tested whether adding X-band edge guidance improved the result.</p></div>
+ <div class="card"><h2>Files</h2><ul>
+ <li>Code, tables and this site: <a href="https://github.com/tristangrupp/sar-scaling">github.com/tristangrupp/sar-scaling</a></li>
+ <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
+   <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
+   <code>exp5_cross_band</code></li>
+ <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
+   download the data again</li>
+ <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>
+</section></main></body></html>
