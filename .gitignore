@@ -35,3 +35,6 @@ exp2_iw_to_stripmap/results_body.html
 exp3_sensor_survey/page_body.html
 exp4_despeckling/page_body.html
 exp5_cross_band/page_body.html
+
+# Query caches and downloaded helper files
+**/cache/

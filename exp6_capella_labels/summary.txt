@@ -1,0 +1,19 @@
+Capella GEO items: 2285 in 480 exp0 sites, 2021-02-11 to 2026-09-03
+Mode: spotlight 1741, stripmap 291, sliding_spotlight 253
+Polarization: HH 2088, VV 197
+Sentinel-1 IW within +/-12 days: 2189 (2168 with VV+VH); median 4 acquisitions per window
+Mostly land (WorldCover water < 50%): 1966
+
+Fields present (crop>=10% & FTW-Global field>=10%): 192 items, 60 sites, 190 with S1; unique area with S1 20536 km2 -> 1905 chips of 256 px, 9924 of 128 px
+Fields, loose (FTW-Global unfiltered field>=10%): 742 items, 94 sites, 697 with S1; unique area with S1 25538 km2 -> 2272 chips of 256 px, 12125 of 128 px
+Fields, strict (FTW-Global conf>=0.4 field>=10%): 187 items, 57 sites, 185 with S1; unique area with S1 19553 km2 -> 1801 chips of 256 px, 9435 of 128 px
+FTW benchmark chip or FTW parcel set touches footprint: 2 items, 2 sites, 2 with S1; unique area with S1 52 km2 -> 0 chips of 256 px, 15 of 128 px
+Buildings present (>=200 Overture): 1536 items, 413 sites, 1496 with S1; unique area with S1 67702 km2 -> 5727 chips of 256 px, 31279 of 128 px
+Buildings, dense (>=2000 Overture): 1026 items, 345 sites, 1001 with S1; unique area with S1 55695 km2 -> 4679 chips of 256 px, 25635 of 128 px
+Fields AND buildings: 179 items, 55 sites, 179 with S1; unique area with S1 19637 km2 -> 1823 chips of 256 px, 9504 of 128 px
+Fields present, Stripmap only: 66 items, 19 sites, 66 with S1; unique area with S1 16323 km2 -> 1660 chips of 256 px, 8252 of 128 px
+
+Fields-present items by country: United States of America 36, Morocco 25, India 22, Italy 17, Myanmar 10, Mexico 9, Indonesia 7, Spain 7, Australia 6, Germany 5, Sudan 5, Bangladesh 5, Turkey 5, Russia 4, United Kingdom 4, Nigeria 3, Poland 3, Taiwan 3, Austria 2, China 2, Vietnam 2, Dem. Rep. Congo 2, Rwanda 2, Moldova 1, Georgia 1, Belgium 1, Switzerland 1, Netherlands 1, Egypt 1
+Fields-present items by mode: spotlight 102, stripmap 66, sliding_spotlight 24
+FTW benchmark/parcel hits: CAPELLA_C14_SP_GEO_HH_20241127235225_20241127235258 (Slovenia, chips 8, parcels 79); CAPELLA_C10_SP_GEO_HH_20241124182316_20241124182351 (Luxembourg, chips 28, parcels 107)
+Overture building sources (summed over items): OpenStreetMap 21100052, Google Open Buildings 10612910, Microsoft ML Buildings 9080772, doi:10.5281/zenodo.8174931 482865, Esri Community Maps 188163, Instituto Geográfico Nacional (España) 99306
