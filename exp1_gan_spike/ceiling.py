@@ -9,6 +9,11 @@ misregistration.
 
   python ceiling.py --stage pairs    # candidates + selection -> ceiling/pairs_selected.csv
   python ceiling.py --stage score    # read, register, score -> ceiling/pairs.csv, summary.csv, png/
+  python ceiling.py --stage panels   # redraw the existing png/ panels from cached tiles (no download)
+
+Panel outlines (panel_roles): A is the reference every score is computed against, so it gets the
+purple "truth" outline. B is scored as if it were a prediction, but it is a real image, not a model
+output, so it gets no green outline; neither does degraded B (a baseline).
 
 Run in background with stdout to a file (this env's GDAL hangs foreground pipes on Windows).
 """
@@ -45,6 +50,9 @@ from skimage.registration import phase_cross_correlation
 
 from evaluate import scores
 from train import norm
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from panel_roles import legend, outline  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "ceiling"
@@ -426,10 +434,12 @@ def panel(i, r, an, bn, bdeg, m, sc):
         a_.imshow(img[sl], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
         a_.set_title(t, fontsize=8)
         a_.axis("off")
+    outline(ax[0], "truth")         # A: the reference B is scored against
     fig.suptitle(f"pair {i:02d} {r.site} ({r.geometry} geometry)  detail_r={sc['detail_r']:.2f} "
                  f"hf={sc['hf_ratio']:.2f} ssim={sc['ssim']:.2f}  degraded detail_r={sc['deg_detail_r']:.2f}",
                  fontsize=8)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    legend(fig)
     fig.savefig(OUT / "png" / f"pair_{i:02d}_{r.site}.png")
     plt.close(fig)
 
@@ -482,6 +492,24 @@ def stage_score(workers):
     summarize(ok)
 
 
+def stage_panels():
+    """Redraw the panels already in png/ from the cached tiles; scores come from pairs.csv."""
+    df = pd.read_csv(OUT / "pairs.csv", index_col=0)
+    for f in sorted((OUT / "png").glob("pair_*.png")):
+        i = int(f.stem.split("_")[1])
+        r = df.loc[i]
+        if not (OUT / "tiles" / f"{r.id_a[-12:]}__{r.id_b[-12:]}.npz").exists():
+            print("no cached tile, skipped", f.name, flush=True)
+            continue
+        res, ex_ = process(r)
+        if ex_ is None:
+            print("process failed, skipped", f.name, res.get("status"), flush=True)
+            continue
+        an, bn, bdeg, m = ex_
+        panel(i, r, an, bn, bdeg, m, r)
+        print("panel", f.name, f"detail_r now {res['detail_r']:.3f}, csv {r.detail_r:.3f}", flush=True)
+
+
 def summarize(ok):
     mets = ["detail_r", "hf_ratio", "ssim", "mae"]
     cols = (mets + [f"deg_{k}" for k in mets] + [f"noshift_{k}" for k in mets] +
@@ -522,7 +550,7 @@ def summarize(ok):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", choices=["pairs", "score", "summary"], required=True)
+    ap.add_argument("--stage", choices=["pairs", "score", "summary", "panels"], required=True)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -531,6 +559,8 @@ def main():
         stage_pairs(a.seed)
     elif a.stage == "score":
         stage_score(a.workers)
+    elif a.stage == "panels":
+        stage_panels()
     else:
         df = pd.read_csv(OUT / "pairs.csv", index_col=0)
         summarize(df[df.status == "ok"])

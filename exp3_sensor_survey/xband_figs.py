@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from evaluate import edges
+from r2_panels import mark
 
 ROOT = Path(__file__).resolve().parent
 files = {}
@@ -31,7 +32,7 @@ for prov, fs in files.items():
         a_.imshow(im, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
         yy, xx = np.nonzero(ex)
         a_.scatter(xx, yy, s=0.3, c="#e8a33d", linewidths=0)
-        a_.set_title(t, fontsize=9); a_.axis("off")
+        a_.set_title(t, fontsize=9); a_.axis("off"); mark(a_, t)
     fig.suptitle(f"{prov}: {Path(f).stem}  (2.56 km; orange = X-band edges on built-up pixels)", fontsize=9)
     fig.tight_layout(); fig.savefig(out / f"{prov}.png"); plt.close(fig)
     print("fig", prov, flush=True)

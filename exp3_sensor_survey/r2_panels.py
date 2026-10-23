@@ -13,6 +13,23 @@ import numpy as np, torch
 from config import DATA
 from evaluate import bicubic, edges, predict
 from train import DEV, Gen, to_n
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # project root, for panel_roles
+from panel_roles import outline
+
+
+def role_of(title):
+    """green = a model's output, purple = the truth/reference it is compared against; inputs and bicubic: none"""
+    if title.startswith(("CNN", "GAN", "Control", "Arm")):
+        return "model"
+    if title.startswith(("Truth", "Target", "X-band")):
+        return "truth"
+    return None
+
+
+def mark(ax, title):
+    r = role_of(title)
+    if r:
+        outline(ax, r)
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "eval2" / "panels"; OUT.mkdir(parents=True, exist_ok=True)
@@ -42,7 +59,7 @@ def row(ax, imgs, n, rc, ref_key, overlay=None):
         if overlay is not None:
             yy, xx = np.nonzero(overlay[r:r + n, c:c + n])
             a_.scatter(xx, yy, s=0.4, c="#e8a33d", linewidths=0)
-        a_.set_title(k, fontsize=8); a_.axis("off")
+        a_.set_title(k, fontsize=8); a_.axis("off"); mark(a_, k)
 
 
 def fill(a):
@@ -108,7 +125,7 @@ def armb_panels(best, k=3):
             lo, hi = np.nanpercentile(v, [2, 98])
             a_.imshow(v, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
             yy, xx = np.nonzero(ex); a_.scatter(xx, yy, s=0.3, c="#e8a33d", linewidths=0)
-            a_.set_title(kk, fontsize=8); a_.axis("off")
+            a_.set_title(kk, fontsize=8); a_.axis("off"); mark(a_, kk)
         fig.suptitle(f"xtest {Path(f).stem} (2.56 km; orange = X-band edges on infrastructure)", fontsize=9); fig.tight_layout()
         fig.savefig(OUT / f"armb_{Path(f).stem}.png"); plt.close(fig)
 

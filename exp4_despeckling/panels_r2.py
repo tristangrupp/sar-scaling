@@ -12,6 +12,12 @@ import numpy as np
 from PIL import Image
 
 from panels import db, pick
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
+MODELS = {"cnn_sup", "r2_sup_cond_vv", "r2_n2n_big_cond_vv", "r2_sup_cond_vvvh", "r2_n2n_big_cond_vvvh"}  # green
+TRUTH = {"ref"}                                                                                          # purple
 
 FIG = ROOT / "figs"
 COLS = [("raw", "Raw"), ("lee", "Lee"), ("refined_lee", "Refined Lee"), ("cnn_sup", "R1 CNN sup."),
@@ -28,7 +34,7 @@ def main():
         cols = [(k, lab) for k, lab in COLS if f"{k}_vv" in z.files]
         n = 256
         r0, c0 = pick(z["ref_vv"], z["stable_vv"].astype("float64"), n)
-        fig, ax = plt.subplots(2, len(cols), figsize=(1.9 * len(cols), 4.1), dpi=110)
+        fig, ax = plt.subplots(2, len(cols), figsize=(1.9 * len(cols), 4.3), dpi=110)
         for i, p in enumerate(("vv", "vh")):
             lo, hi = np.percentile(db(z[f"ref_{p}"]), [2, 98])
             for j, (k, lab) in enumerate(cols):
@@ -40,12 +46,15 @@ def main():
                     a.axis("off")
                 if i == 0:
                     a.set_title(lab, fontsize=7.5)
+                if f"{k}_{p}" in z.files and (k in MODELS or k in TRUTH):
+                    outline(a, "model" if k in MODELS else "truth", lw=2.5)
             ax[i, 0].set_ylabel(p.upper(), fontsize=8)
-        fig.subplots_adjust(left=0.02, right=0.995, top=0.93, bottom=0.01, wspace=0.04, hspace=0.05)
+        fig.subplots_adjust(left=0.02, right=0.995, top=0.93, bottom=0.06, wspace=0.04, hspace=0.05)
+        legend(fig)
         out = FIG / f"r2_panel_{name}.png"
         fig.savefig(out)
         plt.close(fig)
-        Image.open(out).convert("RGB").quantize(64).save(out, optimize=True)
+        Image.open(out).convert("RGB").quantize(96).save(out, optimize=True)
         print(name, out.stat().st_size // 1024, "KB", flush=True)
 
 

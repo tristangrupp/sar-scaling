@@ -24,6 +24,8 @@ from skimage.metrics import structural_similarity
 from train import ARMS, DEV, Gen, from_n, load, to_n
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent))   # project root, for panel_roles
+from panel_roles import outline         # noqa: E402
 
 
 def pool_db(d, k):
@@ -147,11 +149,37 @@ def panel(t, x, P, y, s, f, n=192):
     for a_, (k, v) in zip(ax, imgs.items()):
         a_.imshow(v, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
         a_.set_title(k, fontsize=9); a_.axis("off")
+        if k.startswith("CNN"):
+            outline(a_, "model")
+        elif k.startswith("Truth"):
+            outline(a_, "truth")
     fig.suptitle(f"{t['id']}  ({n * 10 / 1000:.2f} km)", fontsize=9)
     fig.tight_layout(); fig.savefig(f); plt.close(fig)
 
 
+def panels_only():
+    """Redraw the existing x2 side-by-side panels from the saved checkpoints, without rescoring (no CSVs written)."""
+    bad = set(json.loads((ROOT / "bad_tiles.json").read_text())) if (ROOT / "bad_tiles.json").exists() else set()
+    pdir = ROOT / "eval" / "panels"
+    want = {q.stem for q in pdir.glob("x2_*.png")}
+    ki, kt, s = ARMS["x2"]
+    G = Gen(s).to(DEV).eval(); G.load_state_dict(torch.load(ROOT / "ckpt/x2.pt", map_location=DEV))
+    G0 = None
+    if (ROOT / "ckpt/x2_cons0.pt").exists():
+        G0 = Gen(s).to(DEV).eval(); G0.load_state_dict(torch.load(ROOT / "ckpt/x2_cons0.pt", map_location=DEV))
+    for role in ["near", "far"]:
+        for t in load(role, "x2", bad):
+            if f"x2_{role}_{t['id']}" not in want:
+                continue
+            y, xn = from_n(t["y"]), t["x"]
+            P = {"bicubic": bicubic(xn, s), "cnn": predict(G, xn)}
+            if G0 is not None:
+                P["cnn_cons0"] = predict(G0, xn)
+            panel(t, from_n(xn), P, y, s, pdir / f"x2_{role}_{t['id']}.png")
+            print("panel", role, t["id"], flush=True)
+
+
 if __name__ == "__main__":
-    main()
+    panels_only() if "--panels-only" in sys.argv else main()
     sys.stdout.flush()
     os._exit(0)

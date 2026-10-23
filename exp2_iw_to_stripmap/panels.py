@@ -6,6 +6,7 @@
   contexts   landscapes the training set barely covers (IW only, no truth)
 Normalization is the training set's global min-max, as in training.
 Writes panels/<name>.png.
+Outlines (panel_roles): green = model outputs, purple = the Stripmap truth; IW input and bicubic none.
 
   python panels.py esrt_a cnn_a esrt_b
 """
@@ -23,10 +24,13 @@ import pandas as pd
 import torch
 from matplotlib.patches import Rectangle
 
-from common import ROOT, TILES, db, pc_client, pc_item, read_iw, tile_grid
+from common import PROJ, ROOT, TILES, db, pc_client, pc_item, read_iw, tile_grid
 from score import bicubic
 from sr_data import Norm
 from train_sr import CKPT, DEV, make_model, predict
+
+sys.path.insert(0, str(PROJ))
+from panel_roles import legend, outline  # noqa: E402
 
 OUT = ROOT / "panels"
 SPAN, N10 = 9600, 960
@@ -63,10 +67,24 @@ def run_all(nets, norms, iw_db):
     return out
 
 
-def show(ax, a, lo, hi, title):
+def show(ax, a, lo, hi, title, role=None):
     ax.imshow(a, cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
     ax.set_title(title, fontsize=8)
     ax.axis("off")
+    if role:
+        outline(ax, role)
+
+
+def role(k):
+    return None if k == "bicubic" else "model"
+
+
+def save(fig, path):
+    fig.tight_layout(rect=(0, 0.03, 1, 1), h_pad=2.0)   # room for bottom-row titles
+    legend(fig)
+    OUT.mkdir(exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
 
 
 def neighbors(nets, norm, regions=("houston", "owens", "w_australia", "amieva_test"), sfx="", prefix="neighbors"):
@@ -88,24 +106,21 @@ def neighbors(nets, norm, regions=("houston", "owens", "w_australia", "amieva_te
         outs = run_all(nets, norm, iw)
         lo, hi = np.nanpercentile(iw, [2, 98])
         names = list(outs)
-        fig, ax = plt.subplots(2, len(names) + 1, figsize=(3.1 * (len(names) + 1), 6.6), dpi=110)
+        fig, ax = plt.subplots(2, len(names) + 1, figsize=(3.1 * (len(names) + 1), 7.4), dpi=110)
         show(ax[0, 0], np.kron(iw, np.ones((2, 2))), lo, hi, "IW 10 m (input), 9.6 km")
         for j, k in enumerate(names, 1):
-            show(ax[0, j], outs[k], lo, hi, LABEL.get(k, k))
+            show(ax[0, j], outs[k], lo, hi, LABEL.get(k, k), role(k))
         for a in ax[0]:
             a.add_patch(Rectangle((640, 640), 640, 640, fill=False, ec="#e4572e", lw=1.2))
         # zoom: 1.6 km in the truth tile, full 5 m resolution
         r0 = c0 = 640 + 160
         sl = (slice(r0, r0 + 320), slice(c0, c0 + 320))
         sm = z["sm"].astype("float32")[160:480, 160:480]
-        show(ax[1, 0], sm, lo, hi, "Stripmap 5 m (truth), 1.6 km zoom")
+        show(ax[1, 0], sm, lo, hi, "Stripmap 5 m (truth), 1.6 km zoom", "truth")
         for j, k in enumerate(names, 1):
-            show(ax[1, j], outs[k][sl], lo, hi, f"{LABEL.get(k, k)}, zoom")
+            show(ax[1, j], outs[k][sl], lo, hi, f"{LABEL.get(k, k)}, zoom", role(k))
         fig.suptitle(f"{reg}: {t.tile_id} (red box = truth tile)", fontsize=9)
-        fig.tight_layout()
-        OUT.mkdir(exist_ok=True)
-        fig.savefig(OUT / f"{prefix}_{reg}.png")
-        plt.close(fig)
+        save(fig, OUT / f"{prefix}_{reg}.png")
         print("panel", reg, flush=True)
 
 
@@ -127,19 +142,16 @@ def contexts(nets, norm):
         outs = run_all(nets, norm, iw)
         lo, hi = np.nanpercentile(iw, [2, 98])
         names = list(outs)
-        fig, ax = plt.subplots(2, len(names) + 1, figsize=(3.1 * (len(names) + 1), 6.6), dpi=110)
+        fig, ax = plt.subplots(2, len(names) + 1, figsize=(3.1 * (len(names) + 1), 7.4), dpi=110)
         show(ax[0, 0], np.kron(iw, np.ones((2, 2))), lo, hi, "IW 10 m (input), 9.6 km")
         for j, k in enumerate(names, 1):
-            show(ax[0, j], outs[k], lo, hi, LABEL.get(k, k))
+            show(ax[0, j], outs[k], lo, hi, LABEL.get(k, k), role(k))
         sl = (slice(800, 1120), slice(800, 1120))
         show(ax[1, 0], np.kron(iw, np.ones((2, 2)))[sl], lo, hi, "IW, 1.6 km zoom")
         for j, k in enumerate(names, 1):
-            show(ax[1, j], outs[k][sl], lo, hi, f"{LABEL.get(k, k)}, zoom")
+            show(ax[1, j], outs[k][sl], lo, hi, f"{LABEL.get(k, k)}, zoom", role(k))
         fig.suptitle(f"{name.replace('_', ' ')} (no Stripmap truth)", fontsize=9)
-        fig.tight_layout()
-        OUT.mkdir(exist_ok=True)
-        fig.savefig(OUT / f"context_{name}.png")
-        plt.close(fig)
+        save(fig, OUT / f"context_{name}.png")
         print("panel", name, flush=True)
 
 

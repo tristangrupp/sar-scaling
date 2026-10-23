@@ -76,7 +76,12 @@ a { color:var(--accent); }
 
 def nav(active):
     links = "".join(f'<a href="{f}" class="{"on" if f == active else ""}">{t}</a>' for f, t in PAGES)
-    return f'<nav class="sitenav"><div class="in"><b>SAR super-resolution</b>{links}</div></nav>'
+    # color key for the outlined panels (panel_roles.py); inline styles so pages built elsewhere get it too
+    key = ('<span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)">'
+           '<span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px">'
+           '</span> model output</span><span><span style="display:inline-block;width:12px;height:12px;'
+           'border:3px solid #7e3fc0;vertical-align:-2px"></span> truth it is compared against</span></span>')
+    return f'<nav class="sitenav"><div class="in"><b>SAR super-resolution</b>{links}{key}</div></nav>'
 
 
 def page(fname, title, body, scripts=""):
@@ -393,6 +398,67 @@ def build_related():
     (SITE / "related.html").write_text(page("related.html", "Related Work", body), encoding="utf-8")
 
 
+# ------------------------------------------------------------------ "what we found" cards
+# One short summary at the top of each experiment page. Inline styles with fallbacks, because some pages
+# (overlap, spike) are built elsewhere and only get the nav CSS.
+SUMMARIES = {
+    "overlap.html": ("Where open X-band overlaps Sentinel-1 Stripmap", [
+        "Umbra has the most usable pairs with Sentinel-1 Stripmap: 1,069 at 12 sites. ICEYE has 211 at 7 sites; Capella 110 at 4.",
+        "Most Capella data is HH polarization, which rarely matches Sentinel-1's VV/VH over land.",
+        "This overlap set every later experiment's training and test sites."]),
+    "spike.html": ("Negative: Sentinel-1 cannot be pushed to 2.5 m X-band", [
+        "Models trained to turn 10 m Sentinel-1 IW into 2.5 m X-band removed speckle and blur, nothing more.",
+        "Their detail matched real X-band barely better than bicubic (detail correlation 0.04 against 0.03), with about 5% of the real fine-detail energy.",
+        "An 8x jump across two wavelengths and different look directions asks for detail the input does not hold."]),
+    "ceiling.html": ("How well can any model score against X-band?", [
+        "Two real X-band images of the same place agree on fine detail only weakly: median detail correlation 0.09, rising to 0.16 for well-aligned pairs.",
+        "So even a perfect model would score low against a single X-band image; look direction and date change the detail.",
+        "This sets the ceiling the experiment 1 scores should be read against."]),
+    "exp2.html": ("Same-sensor training works; X-band adds nothing", [
+        "Reproducing the published recipe (Sentinel-1 IW to 5 m Stripmap) beats bicubic on every held-out region, mostly by removing speckle.",
+        "Adding an X-band edge loss makes held-out Stripmap slightly worse (SSIM −0.21, p &lt; 0.001).",
+        "More inland training data and a change mask (round 3) barely move held-out scores.",
+        "The apparent 750 m Houston shift was our own processing (south-up output, missing geoid), not the satellite."]),
+    "exp3.html": ("NISAR is the best open training source", [
+        "NISAR takes the same scene at two bandwidths in one pass, giving perfectly matched low- and high-resolution pairs.",
+        "A tuned model beats bicubic on all five far-holdout metrics; a multi-date target lowers error further.",
+        "An X-band edge loss again adds nothing, and an adversarial (GAN) term adds texture, not real structure."]),
+    "exp4.html": ("Learned despeckling beats classic filters and helps a map", [
+        "A VV+VH Noise2Noise CNN trained on 24 sites, with no clean target, is the best single-date despeckler: about 0.7 dB above the Lee filter.",
+        "It lifts land-cover accuracy against WorldCover from 0.770 to 0.806.",
+        "It still trails Lee in textured desert and does not help field boundaries at 10 m."]),
+    "exp5.html": ("X-band knowledge transfers, but does not beat training on Stripmap", [
+        "A model trained only on X-band beats bicubic on real Stripmap without any Stripmap training, worth about 10 Stripmap training tiles.",
+        "X-band pretraining speeds up short training runs, and one shared X + L + C network matches the per-band models.",
+        "With the full published recipe and 200 real pairs, X-band or X + L pretraining matches training from scratch: 0 of 40 tests pass."]),
+}
+
+
+def summary_card(fname):
+    title, points = SUMMARIES[fname]
+    items = "".join(f"<li style='margin:4px 0'>{p}</li>" for p in points)
+    return ("<section style='max-width:1200px;margin:16px auto;padding:14px 18px;border:1px solid var(--line,#d5dbe1);"
+            "border-left:5px solid var(--accent,#1f6fd1);border-radius:8px;background:var(--panel,#fff);color:var(--fg,#18212b);"
+            "font-family:\"Source Sans 3\",\"Segoe UI\",system-ui,sans-serif;box-sizing:border-box'>"
+            "<div style='font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#5b6875)'>What we found</div>"
+            f"<h2 style='margin:4px 0 6px;font-size:1.2rem'>{title}</h2><ul style='margin:0;padding-left:20px;line-height:1.5'>{items}</ul></section>")
+
+
+def add_summaries():
+    for fname in SUMMARIES:
+        f = SITE / fname
+        if not f.exists():
+            continue
+        html = f.read_text(encoding="utf-8")
+        card = summary_card(fname)
+        # under the page's own header when it has one, else right under the site nav
+        if "</header>" in html:
+            html = html.replace("</header>", "</header>" + card, 1)
+        else:
+            html = html.replace("</nav>", "</nav>" + card, 1)
+        f.write_text(html, encoding="utf-8")
+
+
 def main():
     SITE.mkdir(exist_ok=True)
     st = status()
@@ -410,6 +476,7 @@ def main():
         "<header><h1>Experiment 5: does radar knowledge transfer across bands?</h1><p class='lede'>Train sharpening and "
         "despeckling on X-band alone, apply it to Sentinel-1 C-band unchanged, and compare with a C-band-only model.</p>"
         "</header><section class='card'><h2>Status</h2><p>Running. This page fills in as the work lands.</p></section>")
+    add_summaries()
     print("site:", SITE / "index.html")
 
 

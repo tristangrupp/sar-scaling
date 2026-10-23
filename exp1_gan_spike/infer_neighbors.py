@@ -35,6 +35,10 @@ from rasterio.vrt import WarpedVRT
 from train import DEV, Gen, norm
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
+MODELS = {"l1", "gan"}             # green outline; there is no truth frame in these panels
 SPAN = 9600                      # m, 3 x 3 tiles
 N10 = SPAN // 10                 # 960 px at 10 m
 
@@ -87,12 +91,14 @@ def panel(imgs, title, path, box=None, zoom=None):
              ("gan", "CNN + GAN")]
     lo, hi = np.percentile(imgs["s1"], [2, 98])
     rows = 2 if zoom else 1
-    fig, ax = plt.subplots(rows, 4, figsize=(16, 4.3 * rows), dpi=100, squeeze=False)
+    fig, ax = plt.subplots(rows, 4, figsize=(16, 4.6 * rows), dpi=100, squeeze=False)
     for j, (k, name) in enumerate(order):
         a = ax[0, j]
         a.imshow(imgs[k], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
         a.set_title(name, fontsize=10)
         a.axis("off")
+        if k in MODELS:
+            outline(a, "model")
         if box:
             a.add_patch(Rectangle(box[:2], box[2], box[3], fill=False, ec="#ff8a4c", lw=1.2))
         if zoom:
@@ -102,8 +108,11 @@ def panel(imgs, title, path, box=None, zoom=None):
             b.imshow(imgs[k][r:r + n, c:c + n], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
             b.set_title(name + " (zoom, blue box)", fontsize=9)
             b.axis("off")
+            if k in MODELS:
+                outline(b, "model")
     fig.suptitle(title, fontsize=11)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    legend(fig)
     fig.savefig(path)
     plt.close(fig)
 

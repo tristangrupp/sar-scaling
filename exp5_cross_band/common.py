@@ -29,7 +29,7 @@ import torch.nn.functional as F
 ROOT = Path(__file__).resolve().parent
 PROJ = ROOT.parent
 SPIKE = PROJ / "exp1_gan_spike"
-DEV = "cuda"
+DEV = os.environ.get("E5_DEV", "cuda")   # E5_DEV=cpu for inference-only redraws
 HR = 2.5
 # Experiment 4 stacks live outside the project folder; override with EXP4_DATA when the project moves.
 EXP4_DATA = Path(os.environ.get("EXP4_DATA", PROJ / "exp4_despeckling" / "data"))

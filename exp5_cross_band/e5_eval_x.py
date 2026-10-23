@@ -32,6 +32,14 @@ import pandas as pd
 import torch
 from scipy import ndimage
 
+import sys  # noqa: E402
+sys.path.insert(0, str(ROOT.parent))
+from panel_roles import legend, outline  # noqa: E402
+
+# --panels-only ID ...: redraw panels for the tiles whose id contains one of the IDs; no scoring files are written
+PANELS_ONLY = sys.argv[sys.argv.index("--panels-only") + 1:] if "--panels-only" in sys.argv else None
+PANEL_MODELS = {"exp1_cnn", "x4_cond", "x4_cond+adapt", "c4"}   # learned models: green outline
+
 MODELS = ["x4_cond", "x4_unc", "x4_aug", "x2_cond", "x2_unc", "c4", "c2"]
 
 
@@ -96,6 +104,8 @@ def main():
     for r in man.itertuples():
         fid = f"{r.provider}_{r.xband_id}"
         f = SPIKE / "data" / f"{fid}.npz"
+        if PANELS_ONLY is not None and not any(k in fid for k in PANELS_ONLY):
+            continue
         if not f.exists():
             continue
         z = np.load(f)
@@ -147,6 +157,9 @@ def main():
         panel_store.append((fid, r.test_region, r.split, s_syn, preds, truth, s_real, preds_r, truth_r))
         print(fid, r.split, "shift", sh, flush=True)
 
+    if PANELS_ONLY is not None:
+        return draw_panels(panel_store, write_index=False)
+
     # ---------------- ceiling: X-band vs X-band of the same place, held-out regions only
     pairs = pd.read_csv(SPIKE / "ceiling/pairs_selected.csv")
     pairs = pairs[pairs.region != "train"]
@@ -174,7 +187,10 @@ def main():
     summ = main_.groupby(["input", "grid", "model"])[met].median().round(3)
     print(summ.to_string(), flush=True)
     summ.to_csv(ROOT / "eval_x_summary.csv")
+    draw_panels(panel_store)
 
+
+def draw_panels(panel_store, write_index=True):
     # ---------------- panels: one 256 px crop per tile (most structured truth), synthetic + real rows
     out = ROOT / "panels_x"
     out.mkdir(exist_ok=True)
@@ -202,12 +218,18 @@ def main():
                 if j < len(ims) and ims[j][1] is not None:
                     a.imshow(ims[j][1], cmap="gray", vmin=lo, vmax=hi, interpolation="nearest")
                     a.set_title(ims[j][0], fontsize=8)
+                    if 1 <= j <= len(order) and order[j - 1][0] in PANEL_MODELS:
+                        outline(a, "model", lw=3)
+                    elif j == len(ims) - 1:
+                        outline(a, "truth", lw=3)
+        legend(fig)
         fig.suptitle(f"{fid[:40]}  ({reg}, {split})  640 m crop", fontsize=9)
-        fig.tight_layout()
+        fig.tight_layout(rect=(0, 0.03, 1, 1))
         fig.savefig(out / f"{fid[:60]}.png")
         plt.close(fig)
         meta_p.append(dict(id=fid, region=reg, split=split))
-    (out / "panels.json").write_text(json.dumps(meta_p))
+    if write_index:
+        (out / "panels.json").write_text(json.dumps(meta_p))
     print("panels", len(meta_p), flush=True)
 
 
