@@ -5,12 +5,10 @@ import json
 
 from narrative import g
 
-LEDE = ("Round 4, the headline test: at Experiment 2's published-baseline recipe (ESRT and CNN, SSIM loss plus histogram "
-        "matching, 8000 steps, 3 seeds), neither X-band nor X-band + L-band pretraining beats arm A beyond seed noise on held-out "
-        "Stripmap, in the near or the far group. Earlier rounds still stand: X-band-only models transfer to C-band zero-shot "
-        "(worth about 10 Stripmap tiles), pretraining speeds up short training, and one shared X+L+C trunk with sensor codes "
-        "matches per-band models. Round 1's negative result against X-band truth was partly an artifact of scoring C-band "
-        "output against another band. X-band priors are real but do not improve a fully trained same-band model.")
+LEDE = ("X-band pretraining helped some short runs, but did not improve the final Sentinel-1 Stripmap model "
+        "with the training settings and budget held constant. Round 4 compared ESRT and CNN models using "
+        "SSIM loss, 200 real training tiles and 8,000 steps. None of 40 comparisons met the improvement rule. "
+        "Earlier rounds below explain the direct-transfer result and why the evaluation reference matters.")
 
 
 def results(c):
@@ -22,13 +20,13 @@ def results(c):
     mid_lo, mid_hi = min(rat[2:5]), max(rat[2:5])
     h = []
 
-    h.append(f"""<section class="card"><h2>Result 1: on synthetic held-out X-band, the models work</h2>
-<p>This is the reverse sanity check. Degrade held-out X-band the same way as in training, and ask the models to undo
+    h.append(f"""<section class="card"><h2>Round 1: results on synthetic X-band inputs</h2>
+<p>This is a check on synthetic inputs. Degrade held-out X-band the same way as in training, and ask the models to undo
 it. The X-trained 4x models raise <code>detail_r</code> from {G('synthetic','2.5m','bicubic4','detail_r'):.3f}
 (bicubic) to {G('synthetic','2.5m','x4_cond','detail_r'):.3f}, and edge F within 10 m from
 {G('synthetic','2.5m','bicubic4','edgeF_10m'):.3f} to {G('synthetic','2.5m','x4_cond','edgeF_10m'):.3f}. At the
 outline scale (20 m tolerance) they reach {G('synthetic','2.5m','x4_cond','edgeF_20m_s10'):.3f}, against
-{G('synthetic','2.5m','bicubic4','edgeF_20m_s10'):.3f} for bicubic. The edges they draw are precise: the mean
+{G('synthetic','2.5m','bicubic4','edgeF_20m_s10'):.3f} for bicubic. Output-to-reference edge distance also improves: the mean
 distance from an output edge to the nearest true edge falls from {G('synthetic','2.5m','bicubic4','ch_out2true_m'):.1f} m
 to {G('synthetic','2.5m','x4_cond','ch_out2true_m'):.1f} m. The 2x models do the same at 5 m (edge F
 {G('synthetic','5m','x2_cond','edgeF_10m'):.3f} against {G('synthetic','5m','bicubic4','edgeF_10m'):.3f}). The C-band-only
@@ -41,7 +39,7 @@ on, geometry and speckle priors carry across bands in both directions.</p>
 not an upper bound for the synthetic case, where the truth is the very image that was degraded.</p></section>""")
 
     nreal = int(agg[(agg.input == 'real_s1') & (agg.model == 'bicubic4') & (agg.grid == '2.5m')].n.iloc[0])
-    h.append(f"""<section class="card"><h2>Result 2: on real Sentinel-1, no model beats bicubic on geometry</h2>
+    h.append(f"""<section class="card"><h2>Round 1: Sentinel-1 evaluated against X-band references</h2>
 <p>Same held-out tiles, but the input is the real Sentinel-1 RTC VV tile paired with each X-band collect. Truth is
 the real X-band at 2.5 m, fine-registered to the input (median residual shift {c['fine_shift_med']:.1f} m). Two reference
 rows bound the scale. Another real X-band collect of the same place reaches edge F
@@ -66,20 +64,20 @@ Truth-to-output distance measures how much real structure a model leaves out. It
 models keep only the strongest structures and smooth the rest away (<code>hf_ratio</code>
 {G('real_s1','2.5m','x4_cond','hf_ratio'):.2f}, against {G('synthetic','2.5m','x4_cond','hf_ratio'):.2f} on synthetic input).
 Where an X-trained model does draw an edge on real C-band, the edge is as well placed as the supervised model's.
-Geometry precision transfers. Detail recall does not.</p>
+Edge precision improves, while edge recall is lower in this comparison.</p>
 <h3>4x models, 2.5 m grid, real Sentinel-1 input</h3>{T['real25']}
 <h3>All models at 5 m, real Sentinel-1 input</h3>{T['real5']}
 <p style="color:var(--muted)">Medians over {nreal} held-out tiles. Capella HH tiles with VV input are scored as
 cross-polarization in the per-provider table instead. Bold marks the best row other than the references. Result 3
 explains the "+ band adapt" rows.</p></section>""")
 
-    h.append(f"""<section class="card"><h2>Result 3: the domain gap is mostly input statistics, and half of it can be removed without real data</h2>
+    h.append(f"""<section class="card"><h2>Round 1: input statistics and adaptation</h2>
 <p>The chart puts each model's synthetic and real scores side by side on the same tiles. Bicubic loses little between
 synthetic and real input (edge F {G('synthetic','2.5m','bicubic4','edgeF_10m'):.3f} to {G('real_s1','2.5m','bicubic4','edgeF_10m'):.3f}),
-so the truth mismatch between bands, dates and look geometries costs only about 0.03. The X-trained model loses
+a drop of about 0.03 in this comparison. The X-trained model loses
 {G('synthetic','2.5m','x4_cond','edgeF_10m') - G('real_s1','2.5m','x4_cond','edgeF_10m'):.3f}, and its
 <code>detail_r</code> falls from {G('synthetic','2.5m','x4_cond','detail_r'):.3f} to {G('real_s1','2.5m','x4_cond','detail_r'):.3f}.
-Everything beyond bicubic's loss is the model reacting to an input unlike the inputs it trained on.</p>
+The larger drop suggests sensitivity to the difference between synthetic training inputs and real Sentinel-1.</p>
 <div id="gapchart" style="margin:8px 0 4px"></div>
 <p>We measured how the inputs differ, on 316 training tiles, as unpaired statistics: the real Sentinel-1 tile against
 the synthetic input made from its X-band, both standardized. Real C-band at 10 m has {100 * (1 - mid_hi):.0f} to
@@ -132,14 +130,7 @@ Bicubic removes no speckle, so its ratio-image figures carry no meaning.</p>
     ctx_f = [p for p in tf if p.stem.startswith("context")]
     nb_f = [p for p in tf if p.stem.startswith("neighbor")]
     h.append(f"""<section class="card"><h2>Transfer panels: 9.6 km windows with no truth</h2>
-<p>Around four held-out X-band sites and over six unseen landscapes (Experiment 4's held-out sites plus Nile delta
-villages), the X-trained models give clean, readable images. Field boundaries, roads, shorelines and building blocks
-stay where Sentinel-1 puts them. Output averaged back to 10 m correlates with the input at r = 0.85 to 0.90 (bicubic
-0.999). Two sensor-specific habits show up. First, bright point targets in ports and cities grow "+"-shaped streaks.
-These are the sidelobes of X-band spotlight point-spread functions, which the model learned as part of what a point
-target looks like; Sentinel-1 does not have them. Second, the models add only a third to a half of bicubic's
-fine-detail energy. They clean up rather than add detail, which matches the low recall in result 2. Band adaptation
-sharpens the output and draws more outlines, some of them curved and invented in dense urban texture.</p>
+<p>The wider comparisons show smoother fields, roads, shorelines and urban blocks. Output averaged back to 10 m correlates with IW at 0.85–0.90, versus 0.999 for bicubic. Bright targets sometimes develop cross-shaped streaks; round 2’s attempted sidelobe metric could not establish their source. The models retain only one-third to one-half of bicubic’s fine-detail energy. Adaptation adds outlines, but the unscored panels cannot establish whether those outlines are correct.</p>
 {T['transfer']}
 <h3>Around held-out X-band sites</h3>
 {''.join(f'<figure><img src="{img(p)}" alt="{p.stem}"><figcaption>{p.stem.replace("neighbor_", "").replace("_", " ")}: top, the full 9.6 km window (orange box = the X-band tile); bottom, a zoom on the blue box outside it.</figcaption></figure>' for p in nb_f)}
@@ -177,18 +168,10 @@ quantile curve from training tiles; augmentation uses generic ranges only. Neith
 <li>We trained no GAN variant. The spike's discriminator overpowered its generator, and the L1 models already answer
 the transfer question. A GAN would raise <code>hf_ratio</code>, not edge placement.</li></ul></section>""")
 
-    h.append("""<section class="card"><h2>Verdict: is a multi-sensor radar model worth building?</h2>
-<p><span class="pill neg">zero-shot transfer: negative</span> <span class="pill done">shared priors: supported</span></p>
-<p>Training on X-band alone does not help Sentinel-1 without retraining. On real C-band input, no learned model beat
-bicubic interpolation on edge placement. That includes the Experiment 1 CNN, which was trained on real Sentinel-1
-paired with X-band. The X-trained model's edges are well placed, though: its output-to-truth edge distance matches
-the supervised model's and comes close to the agreement between two real X-band collects. Its failure is recall. It
-reads C-band's smoother background as speckle, and that background is a band-specific property of the input, as the
-hypothesis predicted for brightness, roughness and penetration. Matching input statistics recovers about half the loss
-with no real training pairs. A C-band-trained control transfers to synthetic X-band about as well as the X-trained
-models do, so geometry and speckle priors work in both directions.</p>
-<p>A multi-sensor model is worth building, but not as an X-band model applied to C-band. The evidence points to three
-requirements:</p>
+    h.append("""<section class="card"><h2>Round 1 conclusion, followed up in rounds 2–4</h2>
+<p><span class="pill neg">round 1: no gain against X-band references</span> <span class="pill done">some transfer in synthetic tests</span></p>
+<p>In round 1, models applied to real Sentinel-1 did not beat bicubic edge scores when evaluated against X-band references. Their output edges were often close to reference edges, but many reference edges were missing. Input-statistics adaptation reduced part of that gap. This conclusion is specific to the cross-band evaluation: round 3 later found a zero-shot benefit against same-band Stripmap references, and round 4 tested the final model with matched training settings.</p>
+<p>Round 1 suggested three requirements for a shared model. Later rounds test these ideas; the final result is reported in round 4 above.</p>
 <ol><li>Anchor each band in real data of that band: same-sensor coarse and fine pairs (Stripmap for Sentinel-1,
 NISAR's dual-bandwidth modes for L-band from Experiment 3), or self-supervised objectives on real single-date images.
 Synthetic degradation of another band's images is not enough.</li>
@@ -196,9 +179,7 @@ Synthetic degradation of another band's images is not enough.</li>
 during training, plus band augmentation. A flag that never varies does nothing.</li>
 <li>Remove sensor-specific point-spread functions from the targets, or condition on them, so X-band sidelobes do not
 become a "radar prior".</li></ol>
-<p>The cheapest next step reruns this comparison on Experiment 2's Stripmap tiles: does X-band pretraining followed by
-a small Stripmap fine-tune beat Stripmap-only training? That is the transfer a multi-sensor model needs, and this run
-could not test it.</p></section>""")
+<p>The proposed Stripmap follow-up is complete. Round 3 found a benefit in short training runs; round 4 found no improvement beyond seed variation with the full training method and budget.</p></section>""")
 
     h.append("""<section class="card"><h2>Files</h2><ul>
 <li><code>exp5_cross_band/common.py</code>: degradation, conditioned generator, metrics, and the single path constant for Experiment 4 data</li>

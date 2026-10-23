@@ -26,18 +26,12 @@ T["multi"] = """<h2>Step 2: a cleaner target from several dates</h2>
 remote reads). Per 80 m block, a date counted only if it sat within 1.5 dB of the input date (the change mask), and the
 kept dates were averaged in linear power. The median tile kept 6 extra dates. Melbourne had no repeats in the archive
 and Shandong (82,20) had one, so their tiles drop out of the multi-date scoring (mask: at least 3 dates).</p>
-<p><b>A cleaner target changes the verdict on the old models more than it improves new ones.</b> Scored against the
-multi-date mean, the single-date-trained model's detail correlation rises to 0.34 (far) and 0.29 (near), against
-0.33 and 0.15 when scored against one noisy date. Its gains were partly hidden by target speckle. The model
-<i>trained</i> on the multi-date target cuts MAE sharply (far 1.40 dB vs 1.49 for the single-date model and 1.54 for
-bicubic; near 0.98 vs 1.30) and invents fewer edges. It has the same detail correlation, but it is smoother: lower
-SSIM, fine-detail energy 0.40 vs 0.45, and many more missed edges, especially on near tiles (33 m vs 21 m). L1 against a
-smooth target buys accuracy and costs sharpness.</p>"""
+<p>Averaging several dates reveals detail agreement that a noisy single-date reference obscured. The single-date model’s correlation rises to 0.34 in the far group and 0.29 in the near group against the multi-date reference. Training on that reference reduces far MAE to 1.40 dB, versus 1.49 for the single-date model and 1.54 for bicubic; near MAE falls from 1.30 to 0.98 dB. The output is smoother, with fine-detail energy of 0.40 versus 0.45 and more missed edges, especially in the near group (33 versus 21 m).</p>"""
 T["g2"] = """<h2>Step 3: 10 m GCOV to 5 m GSLC</h2>
 <p>The 40 MHz GSLC carries the full 5 m x 5 m resolution. A 1024 x 1024 window reads remotely in about 5 s. A
 single-date GSLC is about one look, so the target is again a multi-date mean (up to 5 extra dates, change-masked). It
 is calibrated to gamma0 with the product's LUT and anchored at about 80 m to the RTC'd 10 m GCOV of the input date,
-so that only the fine structure comes from GSLC. Some GSLC files returned 404 at ASF, which cut the scored set to 82
+so that only the fine structure comes from GSLC. Guessed GSLC filenames returned 404 in this round, which cut the scored set to 82
 tiles (32 validation, 22 near, 28 far).</p>
 <p><b>Result: the same pattern one level finer.</b> The CNN beats bicubic on MAE (far 2.16 vs 2.21 dB; near 1.75 vs
 1.98), detail correlation (0.223 vs 0.193 far; 0.153 vs 0.118 near) and invented edges. It loses on SSIM and missed
@@ -61,7 +55,7 @@ round 2 settings with each other and with bicubic, not with the round 1 numbers.
 <li>One seed per setting; differences under about 0.005 in SSIM or detail correlation are within run-to-run noise.</li>
 <li>Multi-date targets mix up to seven dates over four months; the change mask removes blocks that changed by more
 than 1.5 dB, but gradual change below that remains.</li>
-<li>The GSLC arm scored only 82 tiles because some GSLC files are missing at ASF.</li>
+<li>The GSLC arm scored 82 tiles in round 2. Round 3 fixed the filename lookup that caused the download failures.</li>
 <li>Arm B used DEM layover and shadow from a nominal 40 degree incidence, not NISAR's static layers; X-band test
 counts remain small (2 Capella, 2 ICEYE, 7 Umbra in xtest; 30 held-out Umbra and 2 ICEYE collects).</li></ul>"""
 (ROOT / "results_text2.json").write_text(json.dumps(T, indent=1), encoding="utf-8")

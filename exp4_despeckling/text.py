@@ -5,22 +5,14 @@ from __future__ import annotations
 def TEXT(ctx):
     L = ctx.get("oracle_enl_ratio", float("nan"))
     S = {}
-    S["header"] = """<header><h1>Experiment 4: cleaner, more interpretable Sentinel-1</h1>
-<p class="lede">Experiment 1 failed at super-resolution but learned a speckle filter by accident. Here we test that
-side effect head-on. Can a CNN or GAN despeckle a single Sentinel-1 date better than the classic filters, keep real
-structure, and make the image easier to map? The yardstick comes from the same sensor: a 22 to 27 date temporal
-mean on the same orbit, with changed pixels masked out. Six sites are held out entirely.</p></header>"""
+    S["header"] = """<header><h1>Experiment 4: Sentinel-1 despeckling</h1>
+<p class="lede">We tested whether learned filters can reduce speckle in a single Sentinel-1 image while preserving structure and improving mapping. Standard filters provide the baseline. Evaluation uses six excluded sites and temporal means from 22–27 same-orbit dates, with changing pixels masked. The later round adds VH and trains Noise2Noise models on 24 sites.</p></header>"""
 
-    S["goal"] = """<section class="card"><h2>Goal and why</h2>
-<p>Speckle makes a single Sentinel-1 image hard to read. A field, a forest gap or a road shows up as grainy noise
-unless you average many pixels or many dates. Averaging pixels blurs edges; averaging dates needs a stable
-landscape and weeks of revisits. A filter that cleans one date while keeping edges would help near-real-time
-mapping: floods, harvest, clearing.</p>
-<p>Experiment 1's network, trained to turn Sentinel-1 into X-band, smoothed speckle on landscapes it never saw. We
-did not know whether that smoothing kept real structure or just blurred it. Experiment 4 measures that against a
-same-sensor reference, compares it with the standard filters, and trains a network built for the task.</p></section>"""
+    S["goal"] = """<section class="card"><h2>Purpose</h2>
+<p>Speckle obscures features in a single radar image. Spatial averaging reduces it but blurs edges; temporal averaging requires repeated observations and a stable scene. This experiment tests filters that need only one image at inference.</p>
+<p>Experiment 1 produced smoother images, but visual smoothness did not establish that it preserved useful structure. Here we measure that tradeoff against same-sensor references and compare the transferred model with purpose-trained despecklers.</p></section>"""
 
-    S["design"] = """<section class="card"><h2>Design</h2>
+    S["design"] = """<section class="card"><h2>Round 1: design</h2>
 <h3>Sites and reference</h3>
 <p>Fourteen sites span cropland, forest, urban, mountain, desert and wetland on five continents. Eight training
 sites cover 10.24 km each; six held-out sites cover 5.12 km each, one per land cover, and no model or setting ever
@@ -103,7 +95,7 @@ line: ideal value. Raw has no ratio ENL, since its ratio image is constant.</p>
 </section>"""
     S["gan"] = """<section class="card"><h2>The GAN fine-tune</h2>{GAN}</section>"""
     S["caveats"] = """<section class="card"><h2>Caveats</h2>{CAVEATS}</section>"""
-    S["verdict"] = """<section class="card"><h2>Verdict</h2>{VERDICT}</section>"""
+    S["verdict"] = """<section class="card"><h2>Round 1 conclusion</h2>{VERDICT}</section>"""
     for k, v in FILL.items():
         for s in S:
             S[s] = S[s].replace("{" + k + "}", v)

@@ -18,32 +18,23 @@ def body(c):
     f = lambda inp, grid, m, col, d=3: f"{g(agg, inp, grid, m, col):.{d}f}"
     gap = json.loads(open(c["gap_json"]).read()) if "gap_json" in c else None
     h = []
-    h.append(f"""<header><h1>Experiment 5: does radar knowledge learned on X-band transfer to Sentinel-1 C-band?</h1>
+    h.append(f"""<header><h1>Experiment 5: pretraining across radar bands</h1>
 <p class="lede">{c['lede']}</p></header>""")
 
     h.append("""<section class="card"><h2>Hypothesis</h2>
-<p>A super-resolution model for radar learns two kinds of knowledge. The first kind is geometric: where edges run,
-how building outlines look, how layover pushes tall objects toward the sensor and shadow trails behind them, and how
-speckle behaves statistically. Radar geometry depends on the imaging geometry (incidence angle and look direction),
-not on wavelength, and fully developed speckle follows the same multiplicative statistics at every band. That kind
-should transfer. The second kind is radiometric: how bright each surface appears. Brightness depends on wavelength
-through surface roughness relative to the wavelength, penetration into vegetation and dry soil, and the size of the
-scatterers that dominate a resolution cell. X-band (3 cm) sees fine roughness and leaf-scale scatterers; C-band
-(5.6 cm) sees through more of the canopy and finds the same field smoother. That kind should not transfer.</p>
+<p>The hypothesis is that some features learned from X-band—edges, spatial patterns and speckle statistics—may help a model process C-band. Transfer is uncertain because wavelength, viewing geometry and sensor processing also change the image. X-band is about 3 cm in wavelength; Sentinel-1 C-band is about 5.6 cm. Surface roughness, vegetation penetration and the dominant scatterers can therefore differ.</p>
 <div class="grid">
-<div><h3>Should transfer</h3><ul>
+<div><h3>Features hypothesized to transfer</h3><ul>
 <li>Edge and outline geometry of buildings, roads, shorelines, field boundaries</li>
 <li>Layover and shadow patterns, given the look direction and incidence angle</li>
 <li>Speckle statistics: gamma-distributed intensity, correlation set by the point-spread function</li>
 <li>Point-target shapes (corner reflectors, masts, ships)</li></ul></div>
-<div><h3>Should not transfer</h3><ul>
+<div><h3>Features expected to vary by band</h3><ul>
 <li>Absolute and relative brightness of vegetation, soil, water under wind</li>
 <li>Penetration: X-band stops in the canopy top, C-band reaches branches and sometimes ground</li>
 <li>Roughness response: a field rough at 3 cm can be smooth at 5.6 cm</li>
 <li>Texture density: how many bright scatterers populate a 20 m cell</li></ul></div></div>
-<p>The test: train a model only on X-band, degraded to look like Sentinel-1, then run it on real Sentinel-1 with no
-retraining. If the geometry priors transfer, it should place edges better than bicubic interpolation on real
-Sentinel-1, even if its brightness is wrong.</p></section>""")
+<p>The first test trains on degraded X-band images and applies the model to real Sentinel-1 without retraining. Later rounds add NISAR and Stripmap data, then compare pretraining with training from scratch under matched settings.</p></section>""")
 
     h.append(f"""<section class="card"><h2>Design</h2>
 <h3>Training data: X-band only</h3>
@@ -86,14 +77,10 @@ question.</p>
 <tr><td>Exp 1 CNN</td><td>real S1 IW paired with real X-band ({c['exp1_which']})</td><td class="n">4x</td><td>no</td><td>supervised cross-band baseline</td></tr>
 <tr><td>C-band-only 4x / 2x</td><td>Experiment 4 temporal-mean S1 VV at 10 m, 8 training sites, degraded the same way in pixel units</td><td class="n">4x / 2x</td><td>no</td><td>same-band control</td></tr>
 <tr><td>Bicubic</td><td>nothing</td><td class="n">4x / 2x</td><td>–</td><td>floor</td></tr></table></div>
-<p>The C-band-only control had to fall back. Experiment 2's Stripmap tiles were not ready (one Houston test tile
-exists, see below), so we used Experiment 4's temporal means: 20 to 27 dates averaged, close to speckle-free, at 10 m.
-They were degraded with the same pipeline in pixel units (a 10 m pixel stands in for 2.5 m, so the point-spread
-function becomes 80 x 88 m). That is a scale-shift assumption, and a weak control: it learns C-band texture at 40 m
-and applies it at 10 m.</p>
+<p>Round 1 ran before the Stripmap dataset was ready. Its C-band control therefore used Experiment 4’s 10 m temporal means, degraded at a coarser physical scale: the synthetic point-spread function was 80 × 88 m. This is a limited control. Rounds 3 and 4 replace it with actual IW-to-Stripmap pairs.</p>
 <h3>Evaluation</h3>
 <ul>
-<li><b>Synthetic held-out X-band</b> (the reverse sanity check): held-out tiles degraded with a fixed seed and K = 6. The X-trained models should work here.</li>
+<li><b>Synthetic held-out X-band</b> (a check on synthetic inputs): held-out tiles degraded with a fixed seed and K = 6. The X-trained models should work here.</li>
 <li><b>Real Sentinel-1 against real X-band</b> on the same held-out tiles. The spike co-registered each pair at 10 m; we
 then fine-register at 2.5 m (phase correlation against the bicubic upsample, bounded at 10 m). Brightness differs
 by band, so the geometry metrics carry the transfer question.</li>

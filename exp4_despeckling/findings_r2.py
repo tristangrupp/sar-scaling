@@ -1,11 +1,7 @@
 """Round 2 prose. Numbers from metrics_r2.csv, downstream_r2_wc.csv, downstream_r2_ftw.csv, ckpt/r2_*.json."""
 
 FILL_R2 = {
-"R2_INTRO": """<p>Round 2 asks four follow-up questions, on the same six held-out sites. (1) Can the despeckler stop
-over-smoothing already-clean texture, the Atacama failure, if it knows the input's speckle level? (2) Does
-Noise2Noise, which needs only date pairs, overtake the supervised CNN when it trains on three times as many sites?
-(3) Does VH help, as a second channel and as a target of its own? (4) Does any of this help mapping: land cover again,
-and field boundaries with real labels from Fields of The World (FTW)?</p>
+"R2_INTRO": """<p>Round 2 tests speckle-level conditioning, a larger Noise2Noise training set and VV+VH inputs on the same six test sites. It then evaluates WorldCover classification and field-boundary prediction with Fields of The World (FTW) labels.</p>
 <h3>What changed</h3>
 <ul>
 <li><b>Speckle-level conditioning.</b> Each training input is the mean of k = 1 to 4 random dates, so the network also
@@ -34,13 +30,7 @@ PSNR slips from 21.5 to 21.3 dB, mostly at Madrid. The other CNNs still fail in 
 Noise2Noise models and 18.5 dB for the dual-pol supervised model, whose VH there is biased by +1.25 dB. Conditioning
 moves the bias in the right direction, but a scalar speckle estimate cannot tell texture from speckle. On a surface
 that is both textured and less speckled than the training sites, the networks still smooth it and brighten it.</p>
-<p><b>Noise2Noise overtakes supervised training once it gets more sites and VH.</b> On VV alone, 24 sites lift
-Noise2Noise from 20.7 to 21.2 dB, still below the supervised CNN (21.5). The dual-pol, conditioned Noise2Noise on 24 sites
-reaches 21.85 dB, SSIM 0.54, MAE 0.90 dB, gradient correlation 0.59 and bias +0.06 dB, the best VV scores of any
-method. The dual-pol supervised model (21.78 dB, SSIM 0.54) is a hair behind. Both beat refined Lee by about 1.2 dB and
-Lee by about 0.7 dB. The margins between the top CNNs (0.1 dB) are within what another training seed might reorder;
-what is firm is that a model trained only on date pairs, with no 20-date stack, does as well as one trained on clean
-targets. It does so only with the extra sites and the VH channel.</p>""",
+<p>The VV+VH Noise2Noise model trained on 24 sites gives the highest VV scores in this test: PSNR 21.85 dB, SSIM 0.54, MAE 0.90 dB and gradient correlation 0.59, with +0.06 dB bias. The supervised VV+VH model reaches 21.78 dB. Both exceed Lee by about 0.7 dB and refined Lee by about 1.2 dB. The roughly 0.1 dB difference between the top CNNs is too small to establish a ranking without repeated seeds.</p>""",
 
 "R2_K": """<p><b>Without conditioning, CNNs make already-clean inputs worse.</b> When the input is the mean of 2 or 4
 dates, the round-1 CNN and the unconditioned Noise2Noise over-brighten by +0.2 to +0.4 dB. At k = 4 they score below
@@ -62,20 +52,14 @@ date and a full stack. The spread across three dates is about ±0.01 with VV+VH,
 round-2 models (0.67 to 0.69) do not beat round 1's Noise2Noise (0.70); conditioning makes them smooth less, and
 pooled texture features reward smoothing.</p>""",
 
-"R2_FTW": """<p><b>Field boundaries are out of reach for 10 m Sentinel-1, with or without despeckling.</b> We took
-20 FTW test-split chips with clean labels (4 each in France, Spain, the Netherlands, South Africa and Vietnam; Brazil
-and Kenya had none that passed: at least 4 % boundary and at most 2 % unlabelled). We re-gridded each to 10 m in UTM.
-A 10 m cell counts as boundary when at least a quarter of it is FTW boundary. Each chip got a VV+VH stack of 24 dates
-from its label year (2018 to 2022). The forest trains on two chips per country and tests on the other two, then the
-folds swap.</p>
+"R2_FTW": """<p>Despeckling did not improve field-boundary detection in this test. We used 20 FTW test chips: four each from France, Spain, the Netherlands, South Africa and Vietnam. Chips were regridded to 10 m; a cell counted as boundary when FTW boundary labels covered at least a quarter of it. Each chip had a 24-date VV+VH stack from its label year (2018–2022). Training used two chips per country and testing used the other two, then the folds were swapped.</p>
 <p>Boundary-class F1 is 0.08 to 0.12 for every single-date input and 0.11 (VV) or 0.13 (VV+VH) for the 24-date
 temporal mean. Field F1 is 0.62 to 0.67. Despeckling does not move either beyond the spread across dates (±0.02). FTW
 boundaries are one to two pixels wide at 10 m, and many fields in Spain and Vietnam are a few pixels across. C-band
 backscatter often differs little between neighbouring fields of the same crop. The Canny test is not informative:
 in Vietnam boundaries cover 15 to 40 % of the labelled area, so edge F1 sits near chance, and the raw image scores
 highest (0.46) because its noise edges are spread evenly.</p>
-<p>An earlier run of this test reported a boundary F1 of 0.99. A lazily evaluated fold list had put the same chips in
-training and test; the script now builds the folds explicitly and asserts they do not overlap.</p>""",
+<p>The earlier boundary F1 of 0.99 was invalid: a fold-construction bug put the same chips in training and test. The corrected script creates the folds explicitly and asserts that they do not overlap. The results above use the corrected split.</p>""",
 
 "R2_CAVEATS": """<h3>Round 2 caveats</h3>
 <ul>
@@ -90,12 +74,12 @@ noise map, or training on more textured deserts with clean targets, is the next 
 case.</li>
 </ul>""",
 
-"R2_VERDICT": """<h3>Round 2 verdict</h3>
+"R2_VERDICT": """<h3>Round 2 conclusion</h3>
 <p><span class="pill done">Yes, with VH</span> The best single-date despeckler is now a dual-pol Noise2Noise CNN.
 It trains on date pairs from 24 sites with no clean target, and is conditioned on the speckle level. It beats refined
 Lee by about 1.2 dB PSNR, matches or beats the supervised CNN, stays unbiased on inputs that are already multi-looked,
 and lifts land-cover accuracy from 0.779 (Lee, VV+VH) to 0.806. A 24-date stack reaches 0.830.</p>
-<p><span class="pill run">Partly</span> Conditioning fixes over-smoothing of already-clean inputs everywhere, but it fixes
+<p><span class="pill run">Partly</span> Conditioning fixes over-smoothing of already-clean inputs on the averaged inputs, but it fixes
 the Atacama only for the VV-only supervised model. On textured, low-backscatter desert, Lee is still the safer
 filter.</p>
 <p><span class="pill neg">No</span> Despeckling does not make 10 m Sentinel-1 good enough for field boundaries. Every
