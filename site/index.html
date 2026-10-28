@@ -37,7 +37,7 @@ svg text { fill:var(--muted); font:11px var(--f-body); }
 .md h1 { display:none; } .md h2 { font:700 1.1rem var(--f-display); text-transform:none; letter-spacing:0; color:var(--fg); margin:20px 0 6px; }
 .md ul { padding-left:20px; } .md li { margin-bottom:4px; }
 a { color:var(--accent); }
-</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
+</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><a href="exp7.html" class="">Exp 7: change size</a><a href="exp8.html" class="">Exp 8: feature width</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
 <header><h1>Can open SAR sharpen Sentinel-1?</h1>
 <p class="lede">Experiments on sharpening Sentinel-1 radar images and reducing speckle with open X-band data (Capella, Umbra and ICEYE), Sentinel-1 Stripmap and NISAR.</p></header>
 
@@ -56,6 +56,12 @@ a { color:var(--accent); }
    <p>A VV+VH Noise2Noise model trained on 24 sites gained about 0.7 dB PSNR over Lee. WorldCover classification accuracy rose from 0.770 on raw images to 0.806. It still performed poorly on textured desert and did not improve field-boundary detection.</p></div>
  <span class="k">5</span><div><a href="exp5.html">Pretraining across radar bands</a> <span class="pill done">done</span>
    <p>An X-band-only model beat bicubic against Stripmap references, and pretraining helped short runs. With 200 real training tiles and the full 8,000-step recipe, none of 40 comparisons showed an improvement beyond seed variation.</p></div>
+ <span class="k">6</span><div><a href="https://github.com/tristangrupp/sar-scaling/tree/main/exp6_capella_labels">Field-boundary labels drawn on Capella</a> <span class="pill run">planned</span>
+   <p>Designed, not run. It would correct field boundaries on sub-meter Capella images and test whether they train a better Sentinel-1 boundary model. It needs 20 to 40 hours of human review.</p></div>
+ <span class="k">7</span><div><a href="exp7.html">How small a change can Sentinel-1 catch?</a> <span class="pill run">spot check</span>
+   <p>Capella repeat pairs served as automatic change truth at 33 sites. Sentinel-1 VV caught about half of change patches near 900 m², almost none under 16 m², and never reached 90%. About 7% of stable pixels were flagged.</p></div>
+ <span class="k">8</span><div><a href="exp8.html">How narrow a feature can Sentinel-1 show?</a> <span class="pill run">spot check</span>
+   <p>On 803 road, track, ditch and field-edge segments measured on Capella, a multi-date Sentinel-1 mean showed about half at 5.5 m width. Width mattered less than expected, and detection never reached 90%.</p></div>
 </div></section>
 
 <section class="card"><h2>Where things stand</h2>
@@ -69,7 +75,8 @@ a { color:var(--accent); }
  <li>Code, tables and this site: <a href="https://github.com/tristangrupp/sar-scaling">github.com/tristangrupp/sar-scaling</a></li>
  <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
    <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
-   <code>exp5_cross_band</code></li>
+   <code>exp5_cross_band</code>, <code>exp6_capella_labels</code>, <code>exp7_change_tasking</code>,
+   <code>exp8_feature_width</code></li>
  <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
    download the data again</li>
  <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>

@@ -1,0 +1,6 @@
+type,cap_blocks_inconsistent,cap_center_far,cap_low_contrast,cap_no_crossing,cap_no_data,cap_step_edge,cap_weak_z,cap_width_range,capella_nodata,crossings,ok,parallel_neighbor
+ditch_canal,22,11,5,6,0,31,229,0,97,7,112,522
+field_edge,110,49,41,128,10,116,1180,1,369,33,128,1165
+road,266,49,18,33,10,104,1873,0,471,1166,274,2760
+track,175,45,61,84,26,115,1458,0,600,403,331,2106
+tree_line,16,10,3,1,2,14,49,0,45,19,23,354

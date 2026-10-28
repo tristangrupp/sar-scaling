@@ -38,3 +38,7 @@ exp5_cross_band/page_body.html
 
 # Query caches and downloaded helper files
 **/cache/
+
+# Large intermediate tables (rebuilt by the scripts)
+exp7_change_tasking/r2_pair_candidates.csv
+exp8_feature_width/segments_all*.csv

@@ -1,0 +1,95 @@
+{
+ "n_scenes_measured": 30,
+ "excluded_alignment": [
+  "CAPELLA_C02_SS_GEO_HH_20210308122926_20210308122942",
+  "CAPELLA_C08_SM_GEO_HH_20230615103936_20230615103944",
+  "CAPELLA_C09_SP_GEO_HH_20240804145428_20240804145500",
+  "CAPELLA_C11_SM_GEO_HH_20250319191515_20250319191532",
+  "CAPELLA_C11_SP_GEO_HH_20240515072325_20240515072356",
+  "CAPELLA_C11_SP_GEO_HH_20241116120237_20241116120309",
+  "CAPELLA_C13_SS_GEO_HH_20240817172519_20240817172536",
+  "CAPELLA_C14_SM_GEO_HH_20251207025221_20251207025238"
+ ],
+ "n_segments_total": 17336,
+ "n_segments_ok": 803,
+ "n_ok_by_type": {
+  "track": 318,
+  "road": 260,
+  "ditch_canal": 111,
+  "field_edge": 111,
+  "tree_line": 3
+ },
+ "false_alarm": {
+  "multi_either": 0.0539,
+  "single_either": 0.0498,
+  "multi_vv": 0.0528,
+  "multi_vh": 0.0564,
+  "single_vv": 0.0518,
+  "single_vh": 0.0511
+ },
+ "capella_mb": 2383.1,
+ "s1_mb": 535.9,
+ "two_factor_logistic": {
+  "multi": {
+   "a": -0.867,
+   "b_log2w": 0.268,
+   "c_per_dB": 0.019,
+   "w50_at_contrast": {
+    "2 dB": 6.4,
+    "4 dB": 5.8,
+    "8 dB": 4.8,
+    "12 dB": 3.9
+   }
+  },
+  "single": {
+   "a": -1.7,
+   "b_log2w": 0.402,
+   "c_per_dB": 0.005,
+   "w50_at_contrast": {
+    "2 dB": 15.4,
+    "4 dB": 15.1,
+    "8 dB": 14.6,
+    "12 dB": 14.1
+   }
+  }
+ },
+ "sign_agreement_detected": {
+  "single_vv": 0.745,
+  "single_vh": 0.662,
+  "multi_vv": 0.737,
+  "multi_vh": 0.692
+ },
+ "sensitivity_all_scenes": {
+  "multi_either": {
+   "n": 868,
+   "w50": 5.344377643246925,
+   "w90": 744.1173256165911
+  },
+  "single_either": {
+   "n": 868,
+   "w50": 13.5182440638953,
+   "w90": 468.61921513240924
+  }
+ },
+ "width_median_by_type": {
+  "ditch_canal": 6.3,
+  "field_edge": 7.47,
+  "road": 6.48,
+  "track": 4.5,
+  "tree_line": 4.15
+ },
+ "contrast_median_by_type": {
+  "ditch_canal": -5.39,
+  "field_edge": 1.37,
+  "road": -5.17,
+  "track": -2.79,
+  "tree_line": -5.42
+ },
+ "bright_share_by_type": {
+  "ditch_canal": 0.261,
+  "field_edge": 0.55,
+  "road": 0.212,
+  "track": 0.336,
+  "tree_line": 0.0
+ }
+}

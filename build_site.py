@@ -28,7 +28,8 @@ EXP2 = ROOT / "exp2_iw_to_stripmap"
 CEIL = SPIKE / "ceiling"
 
 PAGES = [("index.html", "Overview"), ("related.html", "Related work"), ("overlap.html", "Overlap atlas"), ("spike.html", "Exp 1: X-band targets"),
-         ("ceiling.html", "Exp 1b: repeat images"), ("exp2.html", "Exp 2: IW → Stripmap"), ("exp3.html", "Exp 3: NISAR"), ("exp4.html", "Exp 4: despeckling"), ("exp5.html", "Exp 5: cross-band transfer")]
+         ("ceiling.html", "Exp 1b: repeat images"), ("exp2.html", "Exp 2: IW → Stripmap"), ("exp3.html", "Exp 3: NISAR"), ("exp4.html", "Exp 4: despeckling"), ("exp5.html", "Exp 5: cross-band transfer"),
+         ("exp7.html", "Exp 7: change size"), ("exp8.html", "Exp 8: feature width")]
 
 FONTS = ('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700'
          '&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">')
@@ -170,6 +171,12 @@ def build_index(st):
    <p>A VV+VH Noise2Noise model trained on 24 sites gained about 0.7 dB PSNR over Lee. WorldCover classification accuracy rose from 0.770 on raw images to 0.806. It still performed poorly on textured desert and did not improve field-boundary detection.</p></div>
  <span class="k">5</span><div><a href="exp5.html">Pretraining across radar bands</a> {frag_pill("exp5_cross_band")}
    <p>An X-band-only model beat bicubic against Stripmap references, and pretraining helped short runs. With 200 real training tiles and the full 8,000-step recipe, none of 40 comparisons showed an improvement beyond seed variation.</p></div>
+ <span class="k">6</span><div><a href="https://github.com/tristangrupp/sar-scaling/tree/main/exp6_capella_labels">Field-boundary labels drawn on Capella</a> {frag_pill("exp6_capella_labels")}
+   <p>Designed, not run. It would correct field boundaries on sub-meter Capella images and test whether they train a better Sentinel-1 boundary model. It needs 20 to 40 hours of human review.</p></div>
+ <span class="k">7</span><div><a href="exp7.html">How small a change can Sentinel-1 catch?</a> {frag_pill("exp7_change_tasking")}
+   <p>Capella repeat pairs served as automatic change truth at 33 sites. Sentinel-1 VV caught about half of change patches near 900 m², almost none under 16 m², and never reached 90%. About 7% of stable pixels were flagged.</p></div>
+ <span class="k">8</span><div><a href="exp8.html">How narrow a feature can Sentinel-1 show?</a> {frag_pill("exp8_feature_width")}
+   <p>On 803 road, track, ditch and field-edge segments measured on Capella, a multi-date Sentinel-1 mean showed about half at 5.5 m width. Width mattered less than expected, and detection never reached 90%.</p></div>
 </div></section>
 
 <section class="card"><h2>Where things stand</h2>
@@ -183,7 +190,8 @@ def build_index(st):
  <li>Code, tables and this site: <a href="https://github.com/tristangrupp/sar-scaling">github.com/tristangrupp/sar-scaling</a></li>
  <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
    <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
-   <code>exp5_cross_band</code></li>
+   <code>exp5_cross_band</code>, <code>exp6_capella_labels</code>, <code>exp7_change_tasking</code>,
+   <code>exp8_feature_width</code></li>
  <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
    download the data again</li>
  <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>
@@ -380,6 +388,25 @@ def build_related():
     (SITE / "related.html").write_text(page("related.html", "Related Work", body), encoding="utf-8")
 
 
+def build_md_page(slug, md_path, title, figs=(), chips=()):
+    """A page made from an experiment's results Markdown, with its figures and a few spot-check panels inlined."""
+    md_path = Path(md_path)
+    text = md_path.read_text(encoding="utf-8")
+    h1 = re.search(r"^# (.+)$", text, re.M)
+    text = re.sub(r"^# .+$", "", text, count=1, flags=re.M)
+    # inline images the Markdown already references
+    text = re.sub(r"!\[([^\]]*)\]\(([^)]+\.png)\)",
+                  lambda m: f'<figure><img alt="{m.group(1)}" src="{img64(md_path.parent / m.group(2))}"><figcaption>{m.group(1)}</figcaption></figure>', text)
+    html = markdown.markdown(text, extensions=["tables"])
+    figs_html = "".join(f'<figure><img alt="{cap}" src="{img64(md_path.parent / f)}"><figcaption>{cap}</figcaption></figure>' for f, cap in figs)
+    chips_html = "".join(f'<figure><img alt="{cap}" src="{img64(md_path.parent / f)}"><figcaption>{cap}</figcaption></figure>' for f, cap in chips)
+    body = (f"<header><h1>{h1.group(1) if h1 else title}</h1></header>"
+            + (f"<section class='card'><h2>Figures</h2><div style='display:grid;gap:16px'>{figs_html}</div></section>" if figs else "")
+            + (f"<section class='card'><h2>Spot-check examples</h2><div class='grid'>{chips_html}</div></section>" if chips else "")
+            + f"<section class='card md tw'>{html}</section>")
+    (SITE / f"{slug}.html").write_text(page(f"{slug}.html", title, body), encoding="utf-8")
+
+
 # ------------------------------------------------------------------ "what we found" cards
 # One short summary at the top of each experiment page. Inline styles with fallbacks, because some pages
 # (overlap, spike) are built elsewhere and only get the nav CSS.
@@ -426,6 +453,20 @@ SUMMARIES = {'overlap.html': ('Umbra supplied the most candidate pairs',
                 'weakness.',
                 'The leading CNNs differ by about 0.1 dB; repeated training seeds would be needed to '
                 'rank them confidently.']),
+ 'exp7.html': ('Sentinel-1 catches about half of changes near 900 m²',
+               ['Capella repeat pairs at 33 sites gave about 83,000 change patches as automatic truth at about 2 m.',
+                'Sentinel-1 VV caught about half of patches near 890 m² (95% interval 200 to 7,600 m²) after '
+                'correcting for chance. It caught almost none under 16 m² and never reached 90%.',
+                'About 7% of stable 10 m pixels were flagged. Flag regions of 0.2 ha or more land on real change '
+                'more often than chance (33% against 22%).',
+                'Few large patches exist in the sample, and the headline waits for a human spot check of 96 chips.']),
+ 'exp8.html': ('Width mattered less than expected for Sentinel-1',
+               ['803 road, track, ditch and field-edge segments in 22 Capella scenes were measured at sub-meter detail.',
+                'A multi-date Sentinel-1 mean showed half of them at about 5.5 m width (2.8 to 15.7 m); a single '
+                'date needed about 15 m. Neither reached 90% at any width.',
+                'Ditches gave the cleanest curve: 50% at 3.2 m. Hedgerows gave no usable result.',
+                'The test knows where each line is and averages along 200 m, so it is an upper bound for '
+                'per-pixel boundary mapping.']),
  'exp5.html': ('Pretraining did not improve the final Stripmap model',
                ['An X-band-only model beat bicubic against same-band Stripmap references. Pretraining '
                 'also helped some short L1 runs.',
@@ -477,6 +518,15 @@ def main():
         "<header><h1>Experiment 5: does radar knowledge transfer across bands?</h1><p class='lede'>Train sharpening and "
         "despeckling on X-band alone, apply it to Sentinel-1 C-band unchanged, and compare with a C-band-only model.</p>"
         "</header><section class='card'><h2>Status</h2><p>Running. This page fills in as the work lands.</p></section>")
+    build_md_page("exp7", ROOT / "exp7_change_tasking" / "r2_results.md", "Sentinel-1 Change Size",
+        figs=[("r2_curve.png", "Raw catch rates, the chance-corrected curve, and false alarms"),
+              ("r2_curve_splits.png", "Splits by land cover and sign (underpowered)")],
+        chips=[("r2_spotcheck/chip000_caught.png", "Caught"), ("r2_spotcheck/chip035_missed.png", "Missed"),
+               ("r2_spotcheck/chip066_false_alarm.png", "False alarm")])
+    build_md_page("exp8", ROOT / "exp8_feature_width" / "results.md", "Sentinel-1 Feature Width",
+        figs=[("figures/detection_curve.png", "Detection against width")],
+        chips=[("spotcheck/00_ditch_canal_28_239.png", "Ditch, 3.3 m, not detected"),
+               ("spotcheck/01_ditch_canal_55_366.png", "Ditch, 3.8 m, detected in the multi-date mean")])
     add_summaries()
     print("site:", SITE / "index.html")
 
