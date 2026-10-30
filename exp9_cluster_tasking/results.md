@@ -58,6 +58,14 @@ In the requested form: *pointing Capella at Sentinel-1 VV clusters of 2 ha or mo
 
 A first look at two panels: a Black Rock Desert cluster (look 01) sits among new structures that Capella also shows. All three misses come from Etna (site 599), where Sentinel-1 darkens across a slope over 12 days while Capella sees nothing in its 3-day gap.
 
+### Human verdicts (2026-10-30)
+
+One reviewer judged all 40 looks without seeing their type or automatic outcome. They marked 8 looks as real change and 32 as unsure; none were marked as having no change.
+
+- All 8 real-change looks are cluster looks at Black Rock Desert (site 0), August 22 to 25, 2026. That is the build of Black Rock City for Burning Man, a large, fast, unambiguous change.
+- None of the 12 random looks were confirmed, and none of the 8 cluster looks at other sites were.
+- So the reviewer confirmed the clusters only where the change was obvious, and only at one site. The check supports the clusters at Black Rock but can't separate clusters from random looks anywhere else.
+
 ## Limits
 
 - **The truth comes from experiment 7 and is automatic.** Its spot check still awaits a human verdict. Wet canopy, wind, tillage and residual misregistration produce patches, and the dense truth drives the high random hit rate. A cleaner truth would lower every hit rate and could change the lift either way.

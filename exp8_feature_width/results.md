@@ -162,6 +162,16 @@ outcome (30 detected, 30 not). Each shows Capella at 1 m (purple outline, the tr
 date, VV and VH multi-date means (no outline; no detector output is drawn) and the across-line profiles.
 `spotcheck.csv` lists them with an empty `verdict` column.
 
+### Human verdicts (2026-10-30)
+
+One reviewer judged all 60 panels.
+
+- **Capella truth holds:** 45 of the 49 decided panels show a real linear feature on Capella; 4 show none.
+- **The detector mostly agrees with the reviewer.** Where the multi-date test said "detected", the reviewer saw the feature on Sentinel-1 in 19 of 25 decided panels. Where it said "not detected", the reviewer agreed in 13 of 20. Overall agreement is 32 of 45 (71%).
+- **The test misses some visible features.** Seven panels the test scored as not detected were visible to the reviewer, so the automatic rule is a little strict, not lenient, on these panels.
+- **VH looked clearer than the automatic numbers suggest.** Of 23 reviewer notes, 13 favor the VH multi-date mean, 5 favor the VV multi-date mean and 3 name both. The automatic test puts VH alone at 24.9 m for 50% detection, worse than VV. The profile test may undervalue VH contrast, so the polarization split deserves a second look.
+- Two tree-line panels were unsure, and one road looked brighter on Sentinel-1 than on Capella, possibly a structure under canopy.
+
 ## Files
 
 Scripts: `select_scenes.py`, `measure.py`, `analyze.py` (set `EXP8_VARIANT=db` for the dB variant),

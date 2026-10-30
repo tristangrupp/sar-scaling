@@ -73,6 +73,17 @@ The calibration (`r2_calib.log`, five pilot pairs) showed that a plain 3 dB log-
 
 `r2_spotcheck/` holds 96 chips from 25 sites: 35 caught and 31 missed patches across five area bands (8 to 32 m² up to above 2,048 m²), and 30 Sentinel-1 false alarms on Capella-stable ground. Each chip shows the two Capella images, the Capella change with the patch outlined (purple frame, the truth) and the Sentinel-1 VV change with its flags (green frame, the detector). `r2_spotcheck/chips.csv` has an empty `verdict` column. Suggested verdicts: real object change, real surface change, not real (misregistration, layover, speckle), or can't tell. The headline should wait for that check; a quick look already found both real change (equipment rows moving at the Pilbara mine, lava or ash at Etna) and doubtful truth (canopy darkening in Tasmanian forest).
 
+### Human verdicts (2026-10-30)
+
+One reviewer judged all 96 chips. Most couldn't be judged at chip scale: 72 came back unsure. Of the 24 judged, 18 were real change and 6 were artifacts.
+
+- Caught patches held up best: 14 real and 1 artifact among the 15 judged.
+- Missed patches split 3 real and 4 artifacts, so some misses are truth errors, not Sentinel-1 failures.
+- False alarms were almost all unsure (28 of 30), as expected on ground Capella calls stable.
+- Bare ground and mines gave most of the judgments (13 real, 3 artifacts). The Pilbara mine alone gave 6 real and 3 artifacts.
+
+The check confirms the Capella truth where a person can read it, mostly at mines and on large patches. It can't confirm the truth on vegetation, farmland or small urban patches. Treat the curve as reliable for bare and built change and as unverified elsewhere.
+
 ## Limits
 
 - **Capella truth noise.** The truth is automatic. Speckle alone produces almost no patches under the rule, but surface changes (wet canopy, wind, tillage) and residual misregistration on slopes and buildings still do. Five pairs have a log-ratio spread above 2.5 dB and hold 48% of the patches. The edge mask removes a median 4% of each window, but up to 70% at the Mexico City site, so change at building edges is underrepresented. The spot check measures how much of the truth is real.

@@ -461,19 +461,19 @@ SUMMARIES = {'overlap.html': ('Umbra supplied the most candidate pairs',
                 'correcting for chance. It caught almost none under 16 m² and never reached 90%.',
                 'About 7% of stable 10 m pixels were flagged. Flag regions of 0.2 ha or more land on real change '
                 'more often than chance (33% against 22%).',
-                'Few large patches exist in the sample, and the headline waits for a human spot check of 96 chips.']),
+                'In a human check of 96 chips, 18 of the 24 that could be judged were real change, mostly at mines; 72 were too hard to judge at chip scale.']),
  'exp8.html': ('Width mattered less than expected for Sentinel-1',
                ['803 road, track, ditch and field-edge segments in 22 Capella scenes were measured at sub-meter detail.',
                 'A multi-date Sentinel-1 mean showed half of them at about 5.5 m width (2.8 to 15.7 m); a single '
                 'date needed about 15 m. Neither reached 90% at any width.',
                 'Ditches gave the cleanest curve: 50% at 3.2 m. Hedgerows gave no usable result.',
-                'The test knows where each line is and averages along 200 m, so it is an upper bound for '
-                'per-pixel boundary mapping.']),
+                'A human check of 60 panels agreed with the automatic test 71% of the time and often found VH clearer than VV. '
+                'The test knows where each line is, so it is an upper bound for per-pixel boundary mapping.']),
  'exp9.html': ('Flag clusters beat random looks, but only slightly',
                ['On held-out sites, 500 m looks centered on Sentinel-1 VV flag clusters of 2 ha or more found Capella change 89% of the time, against 75% for random looks (lift 1.19, interval 1.13 to 2.17).',
                 'Only 5 of 16 test sites produced any cluster, and one desert site gave 20 of the 28 looks.',
                 'Pointing at the brightest change pixels did as well without clustering. Smaller looks or a larger change threshold showed no reliable lift.',
-                'Random looks already hit 75% because the automatic Capella truth is dense; the human spot check of that truth is pending.']),
+                'A blind human check confirmed real change in 8 looks, all clusters at Black Rock Desert during the Burning Man build; it could not confirm any other look.']),
  'exp5.html': ('Pretraining did not improve the final Stripmap model',
                ['An X-band-only model beat bicubic against same-band Stripmap references. Pretraining '
                 'also helped some short L1 runs.',
