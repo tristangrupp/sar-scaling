@@ -29,7 +29,7 @@ CEIL = SPIKE / "ceiling"
 
 PAGES = [("index.html", "Overview"), ("related.html", "Related work"), ("overlap.html", "Overlap atlas"), ("spike.html", "Exp 1: X-band targets"),
          ("ceiling.html", "Exp 1b: repeat images"), ("exp2.html", "Exp 2: IW → Stripmap"), ("exp3.html", "Exp 3: NISAR"), ("exp4.html", "Exp 4: despeckling"), ("exp5.html", "Exp 5: cross-band transfer"),
-         ("exp7.html", "Exp 7: change size"), ("exp8.html", "Exp 8: feature width")]
+         ("exp7.html", "Exp 7: change size"), ("exp8.html", "Exp 8: feature width"), ("exp9.html", "Exp 9: tasking")]
 
 FONTS = ('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700'
          '&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">')
@@ -177,6 +177,8 @@ def build_index(st):
    <p>Capella repeat pairs served as automatic change truth at 33 sites. Sentinel-1 VV caught about half of change patches near 900 m², almost none under 16 m², and never reached 90%. About 7% of stable pixels were flagged.</p></div>
  <span class="k">8</span><div><a href="exp8.html">How narrow a feature can Sentinel-1 show?</a> {frag_pill("exp8_feature_width")}
    <p>On 803 road, track, ditch and field-edge segments measured on Capella, a multi-date Sentinel-1 mean showed about half at 5.5 m width. Width mattered less than expected, and detection never reached 90%.</p></div>
+ <span class="k">9</span><div><a href="exp9.html">Sentinel-1 flag clusters as Capella tasking cues</a> {frag_pill("exp9_cluster_tasking")}
+   <p>A rule tuned on half the sites (VV flags in clusters of 2 ha or more) found Capella change in 89% of 500 m looks on the held-out half, against 75% for random looks. The lift held formally but rests on 5 sites, and the brightest change pixels did as well without clustering.</p></div>
 </div></section>
 
 <section class="card"><h2>Where things stand</h2>
@@ -191,7 +193,7 @@ def build_index(st):
  <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
    <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
    <code>exp5_cross_band</code>, <code>exp6_capella_labels</code>, <code>exp7_change_tasking</code>,
-   <code>exp8_feature_width</code></li>
+   <code>exp8_feature_width</code>, <code>exp9_cluster_tasking</code></li>
  <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
    download the data again</li>
  <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>
@@ -467,6 +469,11 @@ SUMMARIES = {'overlap.html': ('Umbra supplied the most candidate pairs',
                 'Ditches gave the cleanest curve: 50% at 3.2 m. Hedgerows gave no usable result.',
                 'The test knows where each line is and averages along 200 m, so it is an upper bound for '
                 'per-pixel boundary mapping.']),
+ 'exp9.html': ('Flag clusters beat random looks, but only slightly',
+               ['On held-out sites, 500 m looks centered on Sentinel-1 VV flag clusters of 2 ha or more found Capella change 89% of the time, against 75% for random looks (lift 1.19, interval 1.13 to 2.17).',
+                'Only 5 of 16 test sites produced any cluster, and one desert site gave 20 of the 28 looks.',
+                'Pointing at the brightest change pixels did as well without clustering. Smaller looks or a larger change threshold showed no reliable lift.',
+                'Random looks already hit 75% because the automatic Capella truth is dense; the human spot check of that truth is pending.']),
  'exp5.html': ('Pretraining did not improve the final Stripmap model',
                ['An X-band-only model beat bicubic against same-band Stripmap references. Pretraining '
                 'also helped some short L1 runs.',
@@ -527,6 +534,10 @@ def main():
         figs=[("figures/detection_curve.png", "Detection against width")],
         chips=[("spotcheck/00_ditch_canal_28_239.png", "Ditch, 3.3 m, not detected"),
                ("spotcheck/01_ditch_canal_55_366.png", "Ditch, 3.8 m, detected in the multi-date mean")])
+    build_md_page("exp9", ROOT / "exp9_cluster_tasking" / "results.md", "Sentinel-1 Tasking Cues",
+        figs=[("fig_hit_rates.png", "Hit rates: clusters, brightest pixels and random looks"),
+              ("fig_topk.png", "Hit rate of the top-ranked clusters per scene"),
+              ("fig_grid.png", "All tuned rules: lift against number of looks")])
     add_summaries()
     print("site:", SITE / "index.html")
 

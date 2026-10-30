@@ -37,7 +37,7 @@ svg text { fill:var(--muted); font:11px var(--f-body); }
 .md h1 { display:none; } .md h2 { font:700 1.1rem var(--f-display); text-transform:none; letter-spacing:0; color:var(--fg); margin:20px 0 6px; }
 .md ul { padding-left:20px; } .md li { margin-bottom:4px; }
 a { color:var(--accent); }
-</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><a href="exp7.html" class="">Exp 7: change size</a><a href="exp8.html" class="">Exp 8: feature width</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
+</style></head><body><nav class="sitenav"><div class="in"><b>SAR super-resolution</b><a href="index.html" class="on">Overview</a><a href="related.html" class="">Related work</a><a href="overlap.html" class="">Overlap atlas</a><a href="spike.html" class="">Exp 1: X-band targets</a><a href="ceiling.html" class="">Exp 1b: repeat images</a><a href="exp2.html" class="">Exp 2: IW → Stripmap</a><a href="exp3.html" class="">Exp 3: NISAR</a><a href="exp4.html" class="">Exp 4: despeckling</a><a href="exp5.html" class="">Exp 5: cross-band transfer</a><a href="exp7.html" class="">Exp 7: change size</a><a href="exp8.html" class="">Exp 8: feature width</a><a href="exp9.html" class="">Exp 9: tasking</a><span style="margin-left:auto;display:flex;gap:12px;font-size:.82rem;color:var(--muted,#5b6875)"><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #1f9d55;vertical-align:-2px"></span> model output</span><span><span style="display:inline-block;width:12px;height:12px;border:3px solid #7e3fc0;vertical-align:-2px"></span> reference image</span></span></div></nav><main class="wrap">
 <header><h1>Can open SAR sharpen Sentinel-1?</h1>
 <p class="lede">Experiments on sharpening Sentinel-1 radar images and reducing speckle with open X-band data (Capella, Umbra and ICEYE), Sentinel-1 Stripmap and NISAR.</p></header>
 
@@ -62,6 +62,8 @@ a { color:var(--accent); }
    <p>Capella repeat pairs served as automatic change truth at 33 sites. Sentinel-1 VV caught about half of change patches near 900 m², almost none under 16 m², and never reached 90%. About 7% of stable pixels were flagged.</p></div>
  <span class="k">8</span><div><a href="exp8.html">How narrow a feature can Sentinel-1 show?</a> <span class="pill run">spot check</span>
    <p>On 803 road, track, ditch and field-edge segments measured on Capella, a multi-date Sentinel-1 mean showed about half at 5.5 m width. Width mattered less than expected, and detection never reached 90%.</p></div>
+ <span class="k">9</span><div><a href="exp9.html">Sentinel-1 flag clusters as Capella tasking cues</a> <span class="pill run">spot check</span>
+   <p>A rule tuned on half the sites (VV flags in clusters of 2 ha or more) found Capella change in 89% of 500 m looks on the held-out half, against 75% for random looks. The lift held formally but rests on 5 sites, and the brightest change pixels did as well without clustering.</p></div>
 </div></section>
 
 <section class="card"><h2>Where things stand</h2>
@@ -76,7 +78,7 @@ a { color:var(--accent); }
  <li>One folder per experiment: <code>exp0_overlap_atlas</code>, <code>exp1_gan_spike</code>,
    <code>exp2_iw_to_stripmap</code>, <code>exp3_sensor_survey</code>, <code>exp4_despeckling</code>,
    <code>exp5_cross_band</code>, <code>exp6_capella_labels</code>, <code>exp7_change_tasking</code>,
-   <code>exp8_feature_width</code></li>
+   <code>exp8_feature_width</code>, <code>exp9_cluster_tasking</code></li>
  <li>Scenes, tiles and model checkpoints (about 300 GB) are not in the repository; each experiment's fetch scripts
    download the data again</li>
  <li>Rebuild this site: <code>python build_site.py</code></li></ul></div>
