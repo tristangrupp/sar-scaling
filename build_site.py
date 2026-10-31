@@ -467,7 +467,7 @@ SUMMARIES = {'overlap.html': ('Umbra supplied the most candidate pairs',
                 'A multi-date Sentinel-1 mean showed half of them at about 5.5 m width (2.8 to 15.7 m); a single '
                 'date needed about 15 m. Neither reached 90% at any width.',
                 'Ditches gave the cleanest curve: 50% at 3.2 m. Hedgerows gave no usable result.',
-                'A human check of 60 panels agreed with the automatic test 71% of the time and often found VH clearer than VV. '
+                'A human check of 60 panels agreed with the automatic test 71% of the time. VH and VV detect at similar rates (McNemar p = 0.13) but catch different features. '
                 'The test knows where each line is, so it is an upper bound for per-pixel boundary mapping.']),
  'exp9.html': ('Flag clusters beat random looks, but only slightly',
                ['On held-out sites, 500 m looks centered on Sentinel-1 VV flag clusters of 2 ha or more found Capella change 89% of the time, against 75% for random looks (lift 1.19, interval 1.13 to 2.17).',

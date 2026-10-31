@@ -228,3 +228,53 @@ residual spread dropped, gives a scene shift. The second pass applies that shift
 shift and runs everything, Sentinel-1 included. Scenes with fewer than 8 accepted ground features can't
 be checked this way and leave the headline numbers. This replaces the 10 m OSM-offset exclusion. Tree lines
 keep their X-band layover offset relative to the hedge axis, and the results discuss it.
+
+## Amendment 4 (2026-10-31, VH against VV, written before any changed rule was scored)
+
+The reviewer's spot-check notes favored the VH multi-date mean more often than the automatic test did, so
+this round asks whether the test undervalues VH. `vh_diagnose.py` ran first and changed no rule. It used
+the stored arrays and profiles only, not the verdicts (`vh_diagnose.json`).
+
+**Diagnosis.**
+
+- **No bug.** VV and VH come from the same items and dates (one list per scene in `measure.py`, 2 to 10
+  dates, median 5), on the same 10 m grid, with identical masks of missing pixels. VH sits 5.1–8.1 dB below VV (median
+  6.5 dB) and lies below VV in 99.8% or more of pixels in every scene, so the bands aren't swapped. The
+  profile order in `profiles.npz` matches the labels in `spotcheck.py`.
+- **Units.** The contrast is a difference in dB and z divides it by the same polarization's null spread.
+  Shifting VH by 7 dB changes no z (largest change 5e-14). The darker VH level can't affect the test.
+- **Noise floor.** No multi-date VH background and under 2% of single-date backgrounds fall below −22 dB.
+  VH detection doesn't drop at the darkest levels. The floor plays no measurable role here.
+- **Null spread and contrast.** VH has a 5–8% smaller null spread than VV and a 5% smaller line contrast.
+  The null means sit near 0 dB in both (median absolute 0.13 dB), so no thermal-noise banding biases the
+  null. Measured false-alarm rates: 5.6% VH, 5.3% VV (multi-date).
+- **Sign.** The test is two-sided in both polarizations. VH detections are bright and dark in equal shares.
+- **Position.** In both polarizations the strongest deviation within ±25 m lies a median 11–12 m from the
+  Capella center. This affects VV and VH alike.
+- **The width gap is a curve-shape effect.** Multi-date VV detects 39.2% and VH 36.0%, a 3-point gap. Paired
+  on the same segments, 169 are VV-only and 143 VH-only (exact McNemar p = 0.16). On single dates VH leads,
+  28.4% against 26.9%. The curves are so flat (slope 0.31–0.34 per doubling) that a 3-point gap moves the
+  50% width from 15.9 m to 24.9 m. Both intervals reach beyond 40 m.
+- **What a viewer sees.** Under the panels' 2–98 percentile stretch, the line contrast covers 8–9% of the
+  displayed range in both polarizations. A step between the two flanks covers 16% in both, and spans
+  2.7 against 2.4 null spreads. The pre-set statistic cancels such steps by design.
+
+**Changes.** None of them treats VH differently from VV.
+
+1. The polarization comparison uses the per-polarization standardized contrast in dB: center minus the mean
+   of the two flanks, each window averaged in dB, divided by that polarization's own null spread, with the
+   same thresholds (|z| > 2 for one polarization, > 2.24 for VV or VH). This equals the `rescore.py` dB
+   variant. The diagnosis predicts almost no change, because the pre-set z already standardizes within each
+   polarization. Both rules get reported.
+2. The primary comparison is paired: the share detected by VH only, VV only, both and neither on the same
+   segments, an exact McNemar test, and a scene-bootstrap interval for the VH − VV difference in detection
+   share. Widths at 50% and 90% stay, with scene-bootstrap intervals, but the flat curves make them a weak
+   basis for ranking polarizations.
+3. A secondary statistic, labeled as such, tests the step: left flank minus right flank in dB, standardized
+   by the same statistic on the 16 null lines. "Line or step" counts when either |z| > 2.24 in one
+   polarization, or > 2.49 across both statistics and both polarizations. Measured false-alarm rates get
+   reported. This asks a different question, whether a boundary shows, not whether a linear feature shows,
+   and it doesn't replace the headline.
+4. Only after scoring, the 60 spot-check verdicts serve as a small validation set: agreement of each rule
+   and polarization with the `both` against `capella_only` verdicts (`unsure` and `no_feature` excluded), and whether the
+   panels whose notes favor VH are ones the amended VH rule detects.

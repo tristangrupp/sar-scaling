@@ -21,6 +21,18 @@ PORT = int(os.environ.get("SPOTCHECK_PORT", "8813"))
 LOCK = threading.Lock()
 
 SETS = {
+    "exp7v2": {
+        "csv": ROOT / "exp7_change_tasking" / "r2_spotcheck_v2" / "chips.csv",
+        "img_dir": ROOT / "exp7_change_tasking" / "r2_spotcheck_v2",
+        "img_col": "file",
+        "title": "Experiment 7, round 2 chips: did the ground change inside the purple outline?",
+        "question": "Top row: 480 m of context (red = before, cyan = after). Bottom row: zoom and the change in dB. "
+                    "Judge only the area inside the purple outline.",
+        "choices": [["real", "Real change (object moved, built, removed, dug, flooded)"], ["none", "No change there"],
+                    ["artifact", "Change is an artifact (edge, shift, speckle, layover)"],
+                    ["natural", "Natural only (canopy, moisture, wind)"], ["unsure", "Unsure"]],
+        "info": ["land", "area_m2", "capella_before", "capella_after"],
+    },
     "exp7": {
         "csv": ROOT / "exp7_change_tasking" / "r2_spotcheck" / "chips.csv",
         "img_dir": ROOT / "exp7_change_tasking" / "r2_spotcheck",
@@ -89,7 +101,7 @@ img{max-width:100%;height:auto;background:#fff;border-radius:4px}
 input[type=text]{font:inherit;padding:7px;width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
 kbd{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:.8em}
 </style></head><body><div class="wrap">
-<div class="bar"><b>Spot check</b><button class="tab" data-s="exp7">Exp 7: change</button><button class="tab" data-s="exp8">Exp 8: width</button><button class="tab" data-s="exp9">Exp 9: tasking</button>
+<div class="bar"><b>Spot check</b><button class="tab" data-s="exp7v2">Exp 7: change (new chips)</button><button class="tab" data-s="exp7">Exp 7: old chips</button><button class="tab" data-s="exp8">Exp 8: width</button><button class="tab" data-s="exp9">Exp 9: tasking</button>
 <span id="prog" class="muted"></span></div>
 <div class="card"><h2 id="title" style="margin:0 0 4px;font-size:1.1rem"></h2><div id="q" class="muted"></div></div>
 <div class="card"><div class="bar"><button id="prev">&larr; Prev <kbd>A</kbd></button><span id="pos"></span>
@@ -125,7 +137,7 @@ document.addEventListener("keydown",e=>{ if(e.target.id=="note"){ if(e.key=="Ent
   const n=parseInt(e.key); if(n>=1&&n<=data[S].choices.length) save(data[S].choices[n-1][0]);
   else if(e.key=="a"||e.key=="ArrowLeft") $("prev").click(); else if(e.key=="d"||e.key=="ArrowRight") $("next").click();
   else if(e.key=="n") $("todo").click(); });
-load("exp7");
+load("exp7v2");
 </script></body></html>"""
 
 
@@ -150,6 +162,8 @@ class H(BaseHTTPRequestHandler):
             with LOCK:
                 _, rows = read_rows(s)
             for r in rows:
+                for k in [k for k in r if k.startswith("_")]:
+                    del r[k]
                 r["_img"] = r[s["img_col"]]
             out = {k: s[k] for k in ("title", "question", "choices", "info")} | {"rows": rows}
             return self.send(200, json.dumps(out).encode(), "application/json")

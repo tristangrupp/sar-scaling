@@ -172,12 +172,103 @@ One reviewer judged all 60 panels.
 - **VH looked clearer than the automatic numbers suggest.** Of 23 reviewer notes, 13 favor the VH multi-date mean, 5 favor the VV multi-date mean and 3 name both. The automatic test puts VH alone at 24.9 m for 50% detection, worse than VV. The profile test may undervalue VH contrast, so the polarization split deserves a second look.
 - Two tree-line panels were unsure, and one road looked brighter on Sentinel-1 than on Capella, possibly a structure under canopy.
 
+Round 2 below checks the VH question.
+
+## VH versus VV (round 2, 2026-10-31)
+
+**Result.** The automatic test doesn't undervalue VH. On the same 803 segments, VH and VV detect features
+at rates that don't differ significantly: 36.0% against 39.5% in the multi-date mean (exact McNemar p = 0.13)
+and 28.8% against 27.1% on single dates (p = 0.46). The gap between their widths at 50% detection, 24.6 m
+against 15.3 m, comes from flat curves: a 3-point difference in detection moves the 50% crossing by 9 m,
+and both intervals reach beyond 40 m. On the spot-check panels, the test ranks the polarizations the way
+the reviewer did. On 9 of the 13 panels whose notes favor VH, the VH z exceeds the VV z. The reviewer's
+preference for VH reflects which panels the notes covered, not a defect in the test. The headline numbers
+stay as they were.
+
+![VH against VV](figures/vh_vs_vv.png)
+
+**Diagnosis.** `vh_diagnose.py` checked each suspected cause before any rule changed
+(`vh_diagnose.json`):
+
+- **No bug.** VV and VH come from the same Sentinel-1 items and dates, on the same grid, with the same
+  missing pixels. VH sits 5.1–8.1 dB below VV and lies below it in at least 99.8% of pixels in every scene,
+  so the bands aren't swapped.
+- **Units.** The test divides a dB difference by the same polarization's null spread. Shifting VH by 7 dB
+  leaves every z unchanged, so VH's darker level can't count against it.
+- **Noise floor.** No multi-date VH background falls below −22 dB, and VH detection doesn't drop at the
+  darkest levels.
+- **Null spread, bias and sign.** VH's null spread is 5–8% smaller than VV's and its line contrast 5%
+  smaller. Null means sit near 0 dB in both. Measured false-alarm rates are 5.6% (VH) and 5.3% (VV). The
+  test is two-sided, and VH detections split evenly between bright and dark.
+- **Position.** In both polarizations, the strongest deviation near the line lies a median 11–12 m from the
+  Capella center. This weakens the test for VV and VH alike.
+
+**What changed.** Amendment 4 in `DESIGN.md`, written before scoring, adopts the per-polarization
+standardized contrast in dB (each window averaged in dB, divided by that polarization's null spread, same
+thresholds). This equals the earlier `rescore.py` variant. It adds a paired comparison and a secondary
+"line or step" statistic that also counts a step between the two flanks. `vh_vv.py` scores all three.
+
+| Product | Rule | Detected | Width at 50% | Width at 90% |
+|---|---|---|---|---|
+| Multi-date VV | original | 39.2% | 15.9 m (8.6 to beyond 40) | beyond 40 m |
+| Multi-date VV | amended | 39.5% | 15.3 m (9.0 to beyond 40) | beyond 40 m |
+| Multi-date VH | original | 36.0% | 24.9 m (12.5 to beyond 40) | beyond 40 m |
+| Multi-date VH | amended | 36.0% | 24.6 m (12.4 to beyond 40) | beyond 40 m |
+| Multi-date VV or VH | original | 50.8% | 5.5 m (2.9–19.6) | beyond 40 m |
+| Multi-date VV or VH | amended | 50.8% | 5.5 m (2.9–13.6) | beyond 40 m |
+| Single-date VV | original | 26.9% | 31.3 m (17.5 to beyond 40) | beyond 40 m |
+| Single-date VV | amended | 27.1% | 30.8 m (16.2 to beyond 40) | beyond 40 m |
+| Single-date VH | original | 28.4% | 35.9 m (18.3 to beyond 40) | beyond 40 m |
+| Single-date VH | amended | 28.8% | 32.4 m (17.1 to beyond 40) | beyond 40 m |
+| Single-date VV or VH | original | 38.2% | 14.9 m (9.0 to beyond 40) | beyond 40 m |
+| Single-date VV or VH | amended | 38.5% | 14.8 m (9.0 to beyond 40) | beyond 40 m |
+
+Intervals come from 1,000 scene-bootstrap draws. This run used a new random seed, so the original rule's
+intervals differ slightly from the headline table (for example 2.9–19.6 m here against 2.8–15.7 m there).
+
+**Paired comparison, same segments (amended rule).**
+
+| Product | Both | VV only | VH only | Neither | VH − VV (95% scene interval) | McNemar p |
+|---|---|---|---|---|---|---|
+| Multi-date | 147 | 170 | 142 | 344 | −3.5 points (−6.3 to +0.1) | 0.13 |
+| Single date | 91 | 127 | 140 | 445 | +1.6 points (−2.0 to +5.7) | 0.46 |
+
+Under the original rule the multi-date split is 146, 169, 143 and 345 (p = 0.16) and the single-date split
+88, 128, 140 and 447 (p = 0.50). Each polarization catches about 140–170 segments the other misses, so they
+see different features more than one sees more.
+
+**Line or step (secondary).** Counting a step between the two flanks as well as a line raises detection to
+58.8% in VH and 58.0% in VV (multi-date, p = 0.78), with false-alarm rates of 5.4% each. VH gains 23 points
+from steps, VV 19. This statistic asks whether a boundary shows, not whether a linear feature shows, so it
+doesn't replace the headline.
+
+**Check against the reviewer (after scoring).** Of the 60 panels, 45 have a `both` or `capella_only`
+verdict. Agreement with "visible on Sentinel-1":
+
+- Multi-date VV: 31 of 45 under the original rule, 32 under the amended rule (15 of 26 visible panels
+  detected, 2 of 19 not-visible panels flagged).
+- Multi-date VH: 31 of 45 under both rules (17 of 26 detected, 5 of 19 flagged).
+- Multi-date VV or VH: 32 of 45 under both rules.
+- Line or step: 25 (VV), 31 (VH) and 29 (either). It finds more visible features but flags most of the
+  panels the reviewer saw nothing on.
+
+On the 13 panels whose notes favor VH, the amended VH rule detects 9 and VV detects 6, and the VH z exceeds
+the VV z on 9. On the 5 panels whose notes favor VV, VV detects 4, VH 3, and the VV z is higher on 3. The
+test and the reviewer agree on which polarization shows more, panel by panel.
+
+This validation is small: 45 decided panels from one reviewer, chosen half detected and half not. The
+reviewer saw the multi-date VV and VH means and a single-date VV image, never single-date VH, so only the
+multi-date columns compare like with like.
+
 ## Files
 
 Scripts: `select_scenes.py`, `measure.py`, `analyze.py` (set `EXP8_VARIANT=db` for the dB variant),
-`rescore.py`, `blur_reference.py`, `figure_reference.py`, `spotcheck.py`. Tables: `scenes_selected.csv`,
+`rescore.py`, `blur_reference.py`, `figure_reference.py`, `spotcheck.py`, and for round 2
+`vh_diagnose.py`, `vh_vv.py` and `vh_validate.py`. Tables: `scenes_selected.csv`,
 `scene_meta.csv`, `segments_all.csv`, `segment_status.csv`, `curve_bins.csv`, `width_table.csv`,
-`width_contrast_grid.csv`, `summary.json`, `blur_reference.csv`, plus `_db` versions. Figures in `figures/`.
+`width_contrast_grid.csv`, `summary.json`, `blur_reference.csv`, plus `_db` versions. Round 2 tables:
+`vh_diagnose.json`, `vh_diagnose_scenes.csv`, `segments_vh_vv.csv`, `vh_vv_widths.csv`, `vh_vv_paired.csv`,
+`vh_vv.json`, `vh_validate.json`. Figures in `figures/`.
 Data in `data/` (0.7 GB, gitignored). Downloads were about 2.9 GB per full run (Capella tiles 2.4 GB,
 Sentinel-1 0.5 GB). Pilots and three reruns bring the total to about 10 GB, plus unmetered Overture range
 reads.
