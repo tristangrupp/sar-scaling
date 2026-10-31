@@ -1,0 +1,34 @@
+{
+ "2.5": {
+  "psnr": "n2n_multi",
+  "ssim": "n2n_multi",
+  "detail_r": "esrt_exp2",
+  "hp_r": "n2n_multi",
+  "edge_f1": "esrt_exp2",
+  "gms": "bicubic_single"
+ },
+ "5.0": {
+  "psnr": "bicubic_multi",
+  "ssim": "n2n_multi",
+  "detail_r": "n2n_multi",
+  "hp_r": "n2n_multi",
+  "edge_f1": "esrt_exp2",
+  "gms": "bicubic_single"
+ },
+ "7.5": {
+  "psnr": "n2n_multi",
+  "ssim": "n2n_multi",
+  "detail_r": "n2n_multi",
+  "hp_r": "n2n_multi",
+  "edge_f1": "n2n_multi",
+  "gms": "bicubic_single"
+ },
+ "10.0": {
+  "psnr": "n2n_multi",
+  "ssim": "n2n_multi",
+  "detail_r": "n2n_multi",
+  "hp_r": "n2n_multi",
+  "edge_f1": "n2n_multi",
+  "gms": "bicubic_single"
+ }
+}
